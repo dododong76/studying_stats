@@ -13,6 +13,7 @@
 	 *   playerName: string,
 	 *   rollCount: number,
 	 *   lastSum: number,
+	 *   rolls?: number[],
 	 *   createdAt: number
 	 * }} DiceEvent
 	 * @type {import('firebase/database').Database | null}
@@ -35,7 +36,7 @@
 	let unsubscribe = null;
 
 	let maxCount = $derived(Math.max(1, ...Object.values(counts)));
-	let recentEvents = $derived([...events].slice(-50).reverse());
+	const maxChatLines = 6;
 
 	function generateSessionId() {
 		// 브라우저에서 동작하는 환경을 우선 사용합니다.
@@ -77,19 +78,22 @@
 		const lastSum = Number(ev.lastSum ?? 0);
 		const rollText = Number.isFinite(rollCount) && rollCount > 0 ? `${rollCount}번` : '1회';
 
-		const text = `${playerName}이(가) ${rollText} 던져서 합 ${String(lastSum)} 나옴`;
+		const rolls = normalizeRolls(ev.rolls);
+		const rollsText = rolls.length > 0 ? rolls.join(',') : String(lastSum);
+		const text = `${playerName}이(가) ${rollText} 던져서 ${rollsText} 나옴`;
 
 		const createdAt = Number(ev.createdAt ?? 0);
 		const id = createdAt ? String(createdAt) : String(Math.random());
 
 		messages = [...messages, { id, text }];
-		if (messages.length > 200) messages = messages.slice(-200);
+		if (messages.length > maxChatLines) messages = messages.slice(-maxChatLines);
 
 		const normalized = {
 			id,
 			playerName,
 			rollCount: Number.isFinite(rollCount) ? rollCount : 0,
 			lastSum: Number.isFinite(lastSum) ? lastSum : 0,
+			rolls,
 			createdAt: Number.isFinite(createdAt) ? createdAt : 0
 		};
 
@@ -125,18 +129,22 @@
 				const createdAt = Number(value.createdAt ?? 0);
 				const id = createdAt ? String(createdAt) : String(Math.random());
 
+				const rolls = normalizeRolls(value.rolls);
+
 				nextEvents.push({
 					id,
 					playerName,
 					rollCount: Number.isFinite(rollCount) ? rollCount : 0,
 					lastSum: Number.isFinite(lastSum) ? lastSum : 0,
+					rolls,
 					createdAt: Number.isFinite(createdAt) ? createdAt : 0
 				});
 
 				const rollText = Number.isFinite(rollCount) && rollCount > 0 ? `${rollCount}번` : '1회';
+				const rollsText = rolls.length > 0 ? rolls.join(',') : String(lastSum);
 				nextMessages.push({
 					id,
-					text: `${playerName}이(가) ${rollText} 던져서 합 ${String(lastSum)} 나옴`
+					text: `${playerName}이(가) ${rollText} 던져서 ${rollsText} 나옴`
 				});
 			}
 		}
@@ -147,7 +155,22 @@
 		counts = nextCounts;
 		totalRolls = nextTotal;
 		events = nextEvents.slice(-300);
-		messages = nextMessages.slice(-200);
+		messages = nextMessages.slice(-maxChatLines);
+	}
+
+	/**
+	 * @param {unknown} raw
+	 * @returns {number[]}
+	 */
+	function normalizeRolls(raw) {
+		if (!Array.isArray(raw)) return [];
+		/** @type {number[]} */
+		const out = [];
+		for (const item of raw) {
+			const n = Number(item);
+			if (Number.isFinite(n)) out.push(n);
+		}
+		return out;
 	}
 
 	onMount(() => {
@@ -234,68 +257,47 @@
 				{/each}
 			</div>
 		</div>
-
-		<div class="events-card">
-			<div class="events-title">최근 전송 기록</div>
-			{#if recentEvents.length === 0}
-				<div class="events-empty">아직 학생 전송이 없어요. 학생이 던지면 아래 표가 실시간으로 채워집니다.</div>
-			{:else}
-				<div class="events-table-wrap">
-					<table class="events-table">
-						<thead>
-							<tr>
-								<th>시간</th>
-								<th>이름</th>
-								<th>횟수</th>
-								<th>마지막 합</th>
-							</tr>
-						</thead>
-						<tbody>
-							{#each recentEvents as ev (ev.id)}
-								<tr>
-									<td class="mono">{formatTime(ev.createdAt)}</td>
-									<td>{ev.playerName}</td>
-									<td class="mono">{ev.rollCount}</td>
-									<td class="mono">{ev.lastSum}</td>
-								</tr>
-							{/each}
-						</tbody>
-					</table>
-				</div>
-			{/if}
-		</div>
 	</div>
 
 	<div class="right-panel">
-		<h2>실시간 채팅</h2>
+		<div class="screen-view">
+			<div class="screen-header">
+				<div class="screen-title">실시간 채팅</div>
+				<div class="screen-sub">학생이 전송하면 최신 {maxChatLines}개만 표시됩니다.</div>
+			</div>
 
-		<div class="session-card">
-			<div class="session-title">학생 참여 링크</div>
-			<a class="session-link" href={studentUrl || studentLink} target="_blank" rel="noreferrer">
-				{studentUrl || studentLink}
-			</a>
-			<div class="session-sub">위 링크를 QR코드로 공유하세요.</div>
-			{#if qrDataUrl}
-				<div class="qr-wrap">
-					<img class="qr" src={qrDataUrl} alt="학생 참여 QR 코드" />
+			<div class="screen-body">
+				<div class="session-card">
+					<div class="session-title">학생 참여 링크</div>
+					<a class="session-link" href={studentUrl || studentLink} target="_blank" rel="noreferrer">
+						{studentUrl || studentLink}
+					</a>
+					<div class="session-sub">위 링크를 QR코드로 공유하세요.</div>
+					{#if qrDataUrl}
+						<div class="qr-wrap">
+							<img class="qr" src={qrDataUrl} alt="학생 참여 QR 코드" />
+						</div>
+					{:else}
+						<div class="qr-placeholder">QR 코드를 생성하는 중이거나, 브라우저에서 QR 생성이 불가합니다.</div>
+					{/if}
 				</div>
-			{:else}
-				<div class="qr-placeholder">QR 코드를 생성하는 중이거나, 브라우저에서 QR 생성이 불가합니다.</div>
-			{/if}
-		</div>
 
-		{#if errorMessage}
-			<div class="error">{errorMessage}</div>
-		{/if}
+				{#if errorMessage}
+					<div class="error">{errorMessage}</div>
+				{/if}
 
-		<div class="chat">
-			{#if messages.length === 0}
-				<div class="chat-empty">학생이 전송하면 여기 채팅창에 1줄 요약이 실시간으로 표시됩니다.</div>
-			{:else}
-				{#each messages as m}
-					<div class="chat-line">{m.text}</div>
-				{/each}
-			{/if}
+				<div class="chat">
+					{#if messages.length === 0}
+						<div class="chat-empty">
+							학생이 전송하면 여기 채팅창에 1줄 요약이 실시간으로 표시됩니다.
+						</div>
+					{:else}
+						{#each messages as m}
+							<div class="chat-line">{m.text}</div>
+						{/each}
+					{/if}
+				</div>
+			</div>
 		</div>
 	</div>
 </section>
@@ -303,7 +305,7 @@
 <style>
 	.teacher-lab {
 		display: grid;
-		grid-template-columns: 3fr 2fr;
+		grid-template-columns: 3fr 2.25fr;
 		gap: 16px;
 		min-height: calc(100vh - 160px);
 	}
@@ -314,6 +316,8 @@
 		border: 1px solid #dbeafe;
 		border-radius: 14px;
 		padding: 16px;
+		height: 100%;
+		box-sizing: border-box;
 	}
 
 	h1 {
@@ -391,10 +395,55 @@
 	.right-panel {
 		display: flex;
 		flex-direction: column;
-		align-items: center;
+		align-items: stretch;
 		justify-content: flex-start;
-		gap: 12px;
+		background: #ffffff;
+	}
+
+	.screen-view {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 		background: linear-gradient(180deg, #ffffff 0%, #eef2ff 100%);
+		border: 1px solid #dbeafe;
+		border-radius: 14px;
+		padding: 16px;
+		width: 100%;
+		box-sizing: border-box;
+		box-shadow: 0 16px 36px rgba(79, 70, 229, 0.08);
+	}
+
+	.screen-header {
+		width: 100%;
+		padding: 6px 8px 10px;
+		box-sizing: border-box;
+	}
+
+	.screen-title {
+		font-weight: 900;
+		color: #0f172a;
+		letter-spacing: -0.02em;
+	}
+
+	.screen-sub {
+		margin-top: 4px;
+		font-size: 0.85rem;
+		color: #475569;
+	}
+
+	.screen-body {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		background: #f8fafc;
+		border-radius: 14px;
+		border: 1px solid #e2e8f0;
+		padding: 12px;
+		width: 100%;
+		box-sizing: border-box;
+		overflow: hidden;
 	}
 
 	.session-card {
@@ -436,13 +485,13 @@
 	.chat {
 		width: 100%;
 		flex: 1;
-		min-height: 260px;
-		max-height: 420px;
-		overflow-y: auto;
+		min-height: 180px;
+		overflow: hidden;
 		border: 1px solid #e2e8f0;
 		border-radius: 12px;
 		background: #ffffff;
 		padding: 10px;
+		box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
 	}
 
 	.chat-empty {
@@ -457,6 +506,7 @@
 		color: #0f172a;
 		font-weight: 600;
 		line-height: 1.35;
+		background: #ffffff;
 	}
 
 	.chat-line:last-child {
@@ -471,11 +521,6 @@
 		background: rgba(185, 28, 28, 0.08);
 		color: #b91c1c;
 		font-weight: 700;
-	}
-
-	h2 {
-		margin: 0;
-		font-size: 1.05rem;
 	}
 
 	.qr-wrap {
@@ -502,62 +547,6 @@
 		border-radius: 12px;
 		border: 1px dashed rgba(99, 102, 241, 0.35);
 		background: rgba(99, 102, 241, 0.06);
-	}
-
-	.events-card {
-		margin-top: 12px;
-		padding: 12px;
-		border-radius: 12px;
-		border: 1px solid #e2e8f0;
-		background: #ffffff;
-	}
-
-	.events-title {
-		font-weight: 800;
-		color: #0f172a;
-		margin-bottom: 8px;
-	}
-
-	.events-empty {
-		color: #64748b;
-		font-size: 0.92rem;
-		padding: 6px 2px;
-	}
-
-	.events-table-wrap {
-		width: 100%;
-		overflow: auto;
-		border-radius: 10px;
-		border: 1px solid #e2e8f0;
-	}
-
-	.events-table {
-		width: 100%;
-		border-collapse: collapse;
-		min-width: 420px;
-	}
-
-	.events-table th,
-	.events-table td {
-		padding: 8px 10px;
-		border-bottom: 1px solid rgba(148, 163, 184, 0.18);
-		text-align: left;
-		white-space: nowrap;
-		font-size: 0.92rem;
-	}
-
-	.events-table th {
-		position: sticky;
-		top: 0;
-		background: #f8fafc;
-		color: #0f172a;
-		font-weight: 800;
-	}
-
-	.mono {
-		font-variant-numeric: tabular-nums;
-		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
-			monospace;
 	}
 
 	@media (max-width: 920px) {

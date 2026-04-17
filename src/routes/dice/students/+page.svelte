@@ -13,10 +13,9 @@
 	let playerName = $state(getRandomDiceAnimalName());
 	let batchInput = $state('1');
 	let isRolling = $state(false);
-	let sentCount = $state(0);
 	let errorMessage = $state('');
 
-	const maxAttempts = 10;
+	const maxRollCount = 10;
 
 	function pickDie() {
 		return Math.floor(Math.random() * 6) + 1;
@@ -24,11 +23,13 @@
 
 	/**
 	 * @param {number} rollCount
-	 * @returns {{countsDelta: Record<string, number>, lastSum: number}}
+	 * @returns {{countsDelta: Record<string, number>, lastSum: number, rolls: number[]}}
 	 */
 	function simulateBatch(rollCount) {
 		const countsDelta = Object.fromEntries(sums.map((sum) => [String(sum), 0]));
 		let lastSum = 2;
+		/** @type {number[]} */
+		const rolls = [];
 
 		for (let i = 0; i < rollCount; i += 1) {
 			const dieA = pickDie();
@@ -36,9 +37,10 @@
 			const sum = dieA + dieB;
 			countsDelta[String(sum)] += 1;
 			lastSum = sum;
+			rolls.push(sum);
 		}
 
-		return { countsDelta, lastSum };
+		return { countsDelta, lastSum, rolls };
 	}
 
 	async function submit() {
@@ -56,11 +58,6 @@
 			return;
 		}
 
-		if (sentCount >= maxAttempts) {
-			errorMessage = '학생 전송 한도(최대 10회)를 모두 사용했어요.';
-			return;
-		}
-
 		const rollCount = Number.parseInt(batchInput, 10);
 		if (!Number.isFinite(rollCount) || rollCount < 1) {
 			batchInput = '1';
@@ -68,19 +65,23 @@
 			return;
 		}
 
-		// 과도한 시뮬레이션을 방지하기 위한 클라이언트 제한
-		const safeRollCount = Math.min(rollCount, 50000);
+		if (rollCount > maxRollCount) {
+			batchInput = String(maxRollCount);
+			errorMessage = `던질 횟수는 최대 ${maxRollCount}회까지 가능해요.`;
+			return;
+		}
+
+		const safeRollCount = rollCount;
 
 		isRolling = true;
 
-		const { countsDelta, lastSum } = simulateBatch(safeRollCount);
-		const eventIndex = sentCount + 1;
+		const { countsDelta, lastSum, rolls } = simulateBatch(safeRollCount);
 
 		const payload = {
 			playerName: playerName.trim() || '동물',
-			eventIndex,
 			rollCount: safeRollCount,
 			lastSum,
+			rolls,
 			countsDelta,
 			createdAt: Date.now()
 		};
@@ -88,7 +89,6 @@
 		const eventsRef = ref(firebaseDb, `diceSessions/${sessionId}/events`);
 		try {
 			await push(eventsRef, payload);
-			sentCount = eventIndex;
 		} catch (err) {
 			const message = err instanceof Error ? err.message : String(err);
 			errorMessage = `전송 실패: ${message}`;
@@ -122,11 +122,11 @@
 					id="batchInput"
 					type="number"
 					min="1"
-					max="50000"
+					max={maxRollCount}
 					step="1"
 					class="input"
 					bind:value={batchInput}
-					disabled={isRolling || sentCount >= maxAttempts}
+					disabled={isRolling}
 				/>
 			</div>
 			<div class="col btncol">
@@ -134,15 +134,11 @@
 				<button
 					class="btn"
 					onclick={submit}
-					disabled={isRolling || sentCount >= maxAttempts}
+					disabled={isRolling}
 				>
-					{isRolling ? '전송 중...' : `${sentCount + 1}번째 던지기`}
+					{isRolling ? '전송 중...' : '던지기 결과 전송'}
 				</button>
 			</div>
-		</div>
-
-		<div class="meta">
-			남은 전송 횟수: <strong>{Math.max(0, maxAttempts - sentCount)}</strong> / {maxAttempts}
 		</div>
 
 		{#if errorMessage}
@@ -224,11 +220,6 @@
 	.btn:disabled {
 		opacity: 0.7;
 		cursor: not-allowed;
-	}
-
-	.meta {
-		color: #334155;
-		font-size: 0.92rem;
 	}
 
 	.error {
