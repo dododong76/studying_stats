@@ -330,7 +330,7 @@
 		color: #475569;
 		font-size: 0.92rem;
 	}
-
+      
 	.chart {
 		display: grid;
 		grid-template-columns: repeat(11, minmax(30px, 1fr));
