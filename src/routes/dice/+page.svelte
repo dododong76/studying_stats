@@ -2,7 +2,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { onValue, ref } from 'firebase/database';
-	import { db } from '$lib/firebase';
+	import { db, missingEnvKeys } from '$lib/firebase';
 
 	const sums = Array.from({ length: 11 }, (_, i) => i + 2);
 
@@ -204,7 +204,8 @@
 		})();
 
 		if (!firebaseDb) {
-			errorMessage = 'Firebase 설정(VITE_FIREBASE_*)이 필요합니다.';
+			const suffix = missingEnvKeys?.length ? ` (누락: ${missingEnvKeys.join(', ')})` : '';
+			errorMessage = `Firebase 설정(VITE_FIREBASE_*)이 필요합니다.${suffix}`;
 			return;
 		}
 

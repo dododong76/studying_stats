@@ -6,6 +6,13 @@ function getEnv(key) {
 	return import.meta.env[key];
 }
 
+const requiredEnvKeys = [
+	'VITE_FIREBASE_API_KEY',
+	'VITE_FIREBASE_DATABASE_URL',
+	'VITE_FIREBASE_PROJECT_ID',
+	'VITE_FIREBASE_APP_ID'
+];
+
 const firebaseConfig = {
 	apiKey: getEnv('VITE_FIREBASE_API_KEY'),
 	authDomain: getEnv('VITE_FIREBASE_AUTH_DOMAIN'),
@@ -15,6 +22,8 @@ const firebaseConfig = {
 	messagingSenderId: getEnv('VITE_FIREBASE_MESSAGING_SENDER_ID'),
 	appId: getEnv('VITE_FIREBASE_APP_ID')
 };
+
+const missingEnvKeys = requiredEnvKeys.filter((k) => !getEnv(k));
 
 const hasRequiredConfig =
 	firebaseConfig.apiKey &&
@@ -32,8 +41,8 @@ if (hasRequiredConfig) {
 } else {
 	// 빌드/로컬 개발 환경에서 환경변수가 비어있는 경우를 대비해 조용히 실패합니다.
 	// 실제 실행 시에는 학생/교사 화면에서 안내 문구를 보여주게 됩니다.
-	console.warn('[firebase] Missing VITE_FIREBASE_* environment variables.');
+	console.warn('[firebase] Missing environment variables:', missingEnvKeys);
 }
 
-export { db };
+export { db, hasRequiredConfig, missingEnvKeys };
 
