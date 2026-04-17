@@ -6,6 +6,9 @@
 
 	const sums = Array.from({ length: 11 }, (_, i) => i + 2);
 
+	/** @type {import('firebase/database').Database | null} */
+	const firebaseDb = db;
+
 	let sessionId = $state(page.url.searchParams.get('session') ?? '');
 	let playerName = $state(getRandomDiceAnimalName());
 	let batchInput = $state('1');
@@ -43,7 +46,7 @@
 
 		errorMessage = '';
 
-		if (!db) {
+		if (!firebaseDb) {
 			errorMessage = 'Firebase 설정(VITE_FIREBASE_*)이 필요합니다.';
 			return;
 		}
@@ -82,11 +85,16 @@
 			createdAt: Date.now()
 		};
 
-		const eventsRef = ref(db, `diceSessions/${sessionId}/events`);
-		await push(eventsRef, payload);
-
-		sentCount = eventIndex;
-		isRolling = false;
+		const eventsRef = ref(firebaseDb, `diceSessions/${sessionId}/events`);
+		try {
+			await push(eventsRef, payload);
+			sentCount = eventIndex;
+		} catch (err) {
+			const message = err instanceof Error ? err.message : String(err);
+			errorMessage = `전송 실패: ${message}`;
+		} finally {
+			isRolling = false;
+		}
 	}
 </script>
 
@@ -97,13 +105,21 @@
 	</div>
 
 	<div class="card">
-		<label class="label">학생 이름(동물)</label>
-		<input type="text" class="input" bind:value={playerName} placeholder="예: 고양이" maxlength="20" />
+		<label class="label" for="playerNameInput">학생 이름(동물)</label>
+		<input
+			id="playerNameInput"
+			type="text"
+			class="input"
+			bind:value={playerName}
+			placeholder="예: 고양이"
+			maxlength="20"
+		/>
 
 		<div class="row">
 			<div class="col">
-				<label class="label">던질 횟수</label>
+				<label class="label" for="batchInput">던질 횟수</label>
 				<input
+					id="batchInput"
 					type="number"
 					min="1"
 					max="50000"
@@ -114,7 +130,7 @@
 				/>
 			</div>
 			<div class="col btncol">
-				<label class="label">&nbsp;</label>
+				<div class="label spacer" aria-hidden="true">&nbsp;</div>
 				<button
 					class="btn"
 					onclick={submit}

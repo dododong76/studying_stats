@@ -1,6 +1,7 @@
 import { getApps, initializeApp } from 'firebase/app';
 import { getDatabase } from 'firebase/database';
 
+/** @param {string} key */
 function getEnv(key) {
 	return import.meta.env[key];
 }
@@ -22,6 +23,7 @@ const hasRequiredConfig =
 	firebaseConfig.appId;
 
 let app = null;
+/** @type {import('firebase/database').Database | null} */
 let db = null;
 
 if (hasRequiredConfig) {
