@@ -4,11 +4,19 @@
 
 	<div class="cards">
 		<a class="card" href="/dice">
-			<h2>Teacher</h2>
-			<p>주사위 분포실험: 2개 주사위 합(2~12)의 분포를 관찰</p>
+			<h2>주사위 던지기기</h2>
+			<p>통계적 확률과 수학적 확률의 관계 알아보기</p>
+		</a>
+		<a class="card" href="/dice10">
+			<h2>주사위 10개 · 합의 분포</h2>
+			<p>10개를 한 번에 굴려 합(10~60)의 상대도수를 확인</p>
+		</a>
+		<a class="card" href="/RegressionLine">
+			<h2>RegressionLine</h2>
+			<p>좌표 데이터를 모아 산점도와 회귀직선을 함께 확인</p>
 		</a>
 		<a class="card" href="/N_distribution">
-			<h2>Students</h2>
+			<h2>정규분포 실험</h2>
 			<p>정규분포 실험: 표본을 누적하며 종 모양 히스토그램 관찰</p>
 		</a>
 	</div>
@@ -17,6 +25,7 @@
 <style>
 	.home {
 		padding: 8px;
+		height: 70%;
 	}
 
 	h1 {
@@ -47,7 +56,7 @@
 	}
 
 	.card:hover {
-		transform: translateY(-2px);
+		transform: scale(1.1);
 	}
 
 	h2 {
