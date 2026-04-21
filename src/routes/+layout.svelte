@@ -35,6 +35,12 @@
             description: '주사위 10개의 합을 충분히 많이 굴려 합의 분포를 관찰합니다.',
             image: '/주사위10개.jpg'
         },
+		{
+            href: '/MontyHall',
+            label: '몬티홀 문제',
+            description: '처음 선택을 유지할지 바꿀지 직접 실험하며 확률 차이를 확인합니다.',
+            image: '/주사위.jpg'
+        },
 
     ];
 </script>
