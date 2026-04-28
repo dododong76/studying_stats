@@ -9,13 +9,13 @@
             href: '/dice',
             label: '주사위 던지기',
             description: '통계적 확률과 수학적 확률의 관계를 알아봅니다.',
-            image: '/주사위.jpg'
+            image: '/주사위.png'
         },
         {
             href: '/birthday',
             label: '우리 반에 나와 생일이 같은 학생이 있을 확률은?',
             description: '학생이 체크한 생일 날짜를 달력에 표시하여 확인해봅시다다.',
-            image: '/생일.jpg'
+            image: '/생일케익.png'
         },
         {
             href: '/RegressionLine',
@@ -39,7 +39,13 @@
             href: '/MontyHall',
             label: '몬티홀 문제',
             description: '처음 선택을 유지할지 바꿀지 직접 실험하며 확률 차이를 확인합니다.',
-            image: '/주사위.jpg'
+            image: '/몬티홀.png'
+        },
+		{
+            href: '/galton',
+            label: '갈톤 보드',
+            description: '좌/우 분기가 누적되는 이항분포를 시뮬레이션하고 결과를 전송합니다.',
+            image: '/갈톤보드.png'
         },
 
     ];
