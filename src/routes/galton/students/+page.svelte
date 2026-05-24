@@ -1,8 +1,8 @@
 <script>
 	import { page } from '$app/state';
 	import { onDestroy } from 'svelte';
-	import { push, ref } from 'firebase/database';
-	import { db, missingEnvKeys } from '$lib/firebase';
+	import { push } from 'firebase/database';
+	import { db, ensureFirebaseAuth, formatFirebaseAuthError, missingEnvKeys, sessionEventsRef } from '$lib/firebase';
 	import { getRandomDiceAnimalName } from '$lib/diceAnimals';
 
 	/** @type {import('firebase/database').Database | null} */
@@ -350,6 +350,7 @@
 		isSending = true;
 		let imageDataUrl = '';
 		try {
+			await ensureFirebaseAuth();
 			// 전송용: 정규분포(누적분포 곡선) 그래프만 별도 SVG로 생성
 			const graphW = 320;
 			const graphH = 150;
@@ -371,7 +372,7 @@
 </svg>`;
 			imageDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(graphSvg)}`;
 
-			await push(ref(firebaseDb, `galtonSessions/${sessionId}/events`), {
+			await push(sessionEventsRef(firebaseDb, sessionId), {
 				playerName: playerName.trim() || '학생',
 				ballCount,
 				rows,
@@ -381,7 +382,7 @@
 				createdAt: Date.now()
 			});
 		} catch (err) {
-			errorMessage = `전송 실패: ${err instanceof Error ? err.message : '오류'}`;
+			errorMessage = `전송 실패: ${formatFirebaseAuthError(err)}`;
 		} finally {
 			isSending = false;
 		}

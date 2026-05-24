@@ -59,4 +59,12 @@ Netlify의 **환경변수(Build & Deploy)** 에 아래 값을 `VITE_` prefix로 
 cp .env.example .env
 ```
 
+### Realtime Database Rules
+
+모든 활동은 동일한 경로 `diceSessions/{sessionId}/events`를 사용합니다.
+프로젝트 루트의 `database.rules.json` 내용을 Firebase Console → **Realtime Database → Rules**에 붙여넣고 **Publish** 하세요.
+
+- **Authentication → Sign-in method → Anonymous** 활성화 필요
+- App Check를 강제(enforcement)하는 경우 웹 도메인·디버그 토큰도 등록해야 합니다
+
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.

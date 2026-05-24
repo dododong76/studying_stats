@@ -47,7 +47,12 @@
             description: '좌/우 분기가 누적되는 이항분포를 시뮬레이션하고 결과를 전송합니다.',
             image: '/갈톤보드.png'
         },
-
+		{
+            href: '/average',
+            label: '생활 평균',
+            description: '학생들의 생활 데이터를 실시간으로 모아 평균, 분산, 표준편차를 확인합니다.',
+            image: '/생활평균.png'
+        }
     ];
 </script>
 

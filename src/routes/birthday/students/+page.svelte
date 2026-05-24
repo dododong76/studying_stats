@@ -1,7 +1,7 @@
 <script>
 	import { page } from '$app/state';
-	import { push, ref } from 'firebase/database';
-	import { db, missingEnvKeys } from '$lib/firebase';
+	import { push } from 'firebase/database';
+	import { db, ensureFirebaseAuth, formatFirebaseAuthError, missingEnvKeys, sessionEventsRef } from '$lib/firebase';
 	import { getRandomDiceAnimalName } from '$lib/diceAnimals';
 
 	/** @type {import('firebase/database').Database | null} */
@@ -66,11 +66,11 @@
 			createdAt: Date.now()
 		};
 
-		const eventsRef = ref(firebaseDb, `birthdaySessions/${sessionId}/events`);
 		try {
-			await push(eventsRef, payload);
+			await ensureFirebaseAuth();
+			await push(sessionEventsRef(firebaseDb, sessionId), payload);
 		} catch (err) {
-			errorMessage = `전송 실패: ${err instanceof Error ? err.message : '오류'}`;
+			errorMessage = `전송 실패: ${formatFirebaseAuthError(err)}`;
 		} finally {
 			isSending = false;
 		}

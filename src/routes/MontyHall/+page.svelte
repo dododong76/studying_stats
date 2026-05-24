@@ -1,9 +1,9 @@
 <script>
 	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/state';
-	import { onValue, ref } from 'firebase/database';
+	import { onValue } from 'firebase/database';
 	import { PhoneQrFrame } from '$lib';
-	import { db, missingEnvKeys } from '$lib/firebase';
+	import { db, ensureFirebaseAuth, formatFirebaseAuthError, missingEnvKeys, sessionEventsRef } from '$lib/firebase';
 
 	/**
 	 * @typedef {{ id: string, text: string }} ChatMessage
@@ -143,18 +143,27 @@
 			return;
 		}
 
-		const eventsRef = ref(firebaseDb, `montyHallSessions/${sessionId}/events`);
-		unsubscribe = onValue(
-			eventsRef,
-			(snapshot) => {
-				errorMessage = '';
-				hydrateFromEvents(snapshot.val());
-			},
-			(err) => {
-				const message = err instanceof Error ? err.message : String(err);
-				errorMessage = `실시간 구독 실패: ${message}`;
+		void (async () => {
+			try {
+				await ensureFirebaseAuth();
+			} catch (error) {
+				errorMessage = `인증 초기화 실패: ${formatFirebaseAuthError(error)}`;
+				return;
 			}
-		);
+
+			const eventsRef = sessionEventsRef(firebaseDb, sessionId);
+			unsubscribe = onValue(
+				eventsRef,
+				(snapshot) => {
+					errorMessage = '';
+					hydrateFromEvents(snapshot.val());
+				},
+				(err) => {
+					const message = err instanceof Error ? err.message : String(err);
+					errorMessage = `실시간 구독 실패: ${message}`;
+				}
+			);
+		})();
 	});
 
 	onDestroy(() => {
