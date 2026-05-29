@@ -542,8 +542,31 @@
 
     @media (max-width: 860px) {
         .door-stage {
-            grid-template-columns: 1fr;
-            max-width: 280px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            width: 100%;
+            max-width: none;
+            gap: clamp(6px, 2vw, 12px);
+            padding: clamp(8px, 2.5vw, 12px);
+        }
+
+        .door-frame {
+            padding: clamp(4px, 1.5vw, 8px);
+        }
+
+        .door-index {
+            font-size: clamp(0.68rem, 2.8vw, 0.9rem);
+            margin-bottom: 4px;
+        }
+
+        .picked-tag {
+            font-size: clamp(0.58rem, 2.2vw, 0.72rem);
+            padding: 2px 5px;
+            top: -4px;
+            right: -4px;
+        }
+
+        .door-frame:hover:enabled {
+            transform: scale(1.08);
         }
     }
 </style>
