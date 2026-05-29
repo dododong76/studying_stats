@@ -171,9 +171,16 @@
 							{#each monthData.cells as cell}
 								{#if cell}
 									{@const count = birthdayCounts[cell.key] ?? 0}
-									<div class="day-cell" title={`${monthData.month}월 ${cell.day}일 (${count}명)`}>
+									<div
+										class="day-cell"
+										class:day-cell--overlap={count >= 2}
+										title={`${monthData.month}월 ${cell.day}일 (${count}명)`}
+									>
 										{#if count > 0}
 											<span class={`day-mark ${count >= 2 ? 'day-mark--multi' : 'day-mark--single'}`} aria-hidden="true"></span>
+											{#if count >= 2}
+												<span class="overlap-badge" aria-hidden="true">{count}</span>
+											{/if}
 										{/if}
 										<span class="day-num">{cell.day}</span>
 									</div>
@@ -322,11 +329,64 @@
 		opacity: 0.9;
 	}
 
+	.day-cell--overlap {
+		background: #fee2e2;
+		box-shadow: inset 0 0 0 2px #dc2626;
+	}
+
+	.day-cell--overlap .day-num {
+		color: #991b1b;
+		font-weight: 900;
+	}
+
 	.day-mark--multi {
-		width: 22px;
-		height: 22px;
-		background: #ef4444;
-		opacity: 0.92;
+		width: 26px;
+		height: 26px;
+		background: #dc2626;
+		opacity: 1;
+		border: 2px solid #ffffff;
+		box-shadow:
+			0 0 0 2px #dc2626,
+			0 0 10px rgba(220, 38, 38, 0.55);
+		animation: overlap-pulse 1.4s ease-in-out infinite;
+	}
+
+	.overlap-badge {
+		position: absolute;
+		top: 1px;
+		right: 1px;
+		z-index: 2;
+		min-width: 14px;
+		height: 14px;
+		padding: 0 3px;
+		border-radius: 999px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: #7f1d1d;
+		color: #ffffff;
+		font-size: 0.58rem;
+		font-weight: 900;
+		line-height: 1;
+		border: 1.5px solid #ffffff;
+		box-shadow: 0 1px 4px rgba(127, 29, 29, 0.45);
+		pointer-events: none;
+	}
+
+	@keyframes overlap-pulse {
+		0%,
+		100% {
+			transform: translate(-50%, -50%) scale(1);
+			box-shadow:
+				0 0 0 2px #dc2626,
+				0 0 8px rgba(220, 38, 38, 0.45);
+		}
+		50% {
+			transform: translate(-50%, -50%) scale(1.12);
+			box-shadow:
+				0 0 0 3px #dc2626,
+				0 0 14px rgba(220, 38, 38, 0.75);
+		}
 	}
 
 	.right-panel {
