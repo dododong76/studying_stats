@@ -207,7 +207,7 @@
 	}
 
 	.preview-wrap {
-		width: min(420px, 100%);
+		width: min(420px, 80%);
 		margin: 0 auto;
 		border-radius: 14px;
 		border: 1px solid rgba(110, 145, 235, 0.35);

@@ -185,49 +185,53 @@
 </script>
 
 <section class="teacher-lab">
-	<div class="left-panel">
-		<div class="panel-header">
-			<h1>주사위 10개 · 합의 분포</h1>
-			<p>고등학교 확률과 통계: 주사위 10개를 한 번에 굴려 합(10~60)의 상대도수를 확인합니다.</p>
-		</div>
-
-		<div class="chart-scroll">
-			<div class="chart">
-				{#each sums as sum}
-					<div class="bar-row">
-						<div
-							class={`sum-chip ${sum % 10 === 0 ? '' : 'sum-chip--muted'}`}
-							aria-label={sum % 10 === 0 ? `합 ${sum}` : undefined}
-						>
-							{sum % 10 === 0 ? sum : ''}
-						</div>
-						<div class="bar-track">
-							<div class="bar-fill" style={`height: ${(counts[sum] / chartScaleMax) * 100}%`}></div>
-						</div>
-						<div class="value">{counts[sum]}</div>
-					</div>
-				{/each}
+	<div class="teacher-lab__chart">
+		<div class="left-panel">
+			<div class="panel-header">
+				<h1>주사위 10개 · 합의 분포</h1>
+				<p>고등학교 확률과 통계: 주사위 10개를 한 번에 굴려 합(10~60)의 상대도수를 확인합니다.</p>
 			</div>
-		</div>
 
-		<div class="stats">
-			<div class="stats-top">주사위 10개를 한번에 굴린 횟수: <strong>{totalRolls/10}</strong></div>
+			<div class="chart-scroll">
+				<div class="chart">
+					{#each sums as sum}
+						<div class="bar-row">
+							<div
+								class={`sum-chip ${sum % 10 === 0 ? '' : 'sum-chip--muted'}`}
+								aria-label={sum % 10 === 0 ? `합 ${sum}` : undefined}
+							>
+								{sum % 10 === 0 ? sum : ''}
+							</div>
+							<div class="bar-track">
+								<div class="bar-fill" style={`height: ${(counts[sum] / chartScaleMax) * 100}%`}></div>
+							</div>
+							<div class="value">{counts[sum]}</div>
+						</div>
+					{/each}
+				</div>
+			</div>
+
+			<div class="stats">
+				<div class="stats-top">주사위 10개를 한번에 굴린 횟수: <strong>{totalRolls/10}</strong></div>
+			</div>
 		</div>
 	</div>
 
-	<div class="right-panel">
-		<PhoneQrFrame
-			fill
-			class="dice10-phone-qr"
-			participateUrl={studentUrl || studentLink}
-			summaries={chatSummaryLines}
-			qrPixelSize={280}
-			emptySummaryText="아직 전송된 내역이 없습니다."
-		/>
+	<div class="teacher-lab__qr">
+		<div class="right-panel">
+			<PhoneQrFrame
+				fill
+				class="dice10-phone-qr"
+				participateUrl={studentUrl || studentLink}
+				summaries={chatSummaryLines}
+				qrPixelSize={280}
+				emptySummaryText="아직 전송된 내역이 없습니다."
+			/>
 
-		{#if errorMessage}
-			<div class="error">{errorMessage}</div>
-		{/if}
+			{#if errorMessage}
+				<div class="error">{errorMessage}</div>
+			{/if}
+		</div>
 	</div>
 </section>
 
@@ -237,6 +241,12 @@
 		grid-template-columns: 3fr 2.25fr;
 		gap: 16px;
 		min-height: calc(100vh - 160px);
+	}
+
+	.teacher-lab__chart,
+	.teacher-lab__qr {
+		min-width: 0;
+		min-height: 0;
 	}
 
 	.left-panel {
@@ -374,6 +384,20 @@
 	@media (max-width: 920px) {
 		.teacher-lab {
 			grid-template-columns: 1fr;
+			grid-template-rows: auto auto;
+			min-height: 0;
+		}
+
+		.left-panel {
+			height: auto;
+		}
+
+		.right-panel {
+			min-height: min(52vh, 420px);
+		}
+
+		:global(.dice10-phone-qr) {
+			--phone-fill-max-height: min(52vh, 420px);
 		}
 	}
 </style>
