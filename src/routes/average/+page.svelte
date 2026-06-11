@@ -662,7 +662,17 @@
 
 	:global(.average-phone-qr) {
 		flex: 1 1 auto;
-		--phone-fill-max-height: 100%;
+		--phone-screen-top: 8.5%;
+		--phone-screen-left: 6.5%;
+		--phone-screen-right: 6.5%;
+		--phone-screen-bottom: 9.5%;
+		--phone-fill-max-height: min(calc(100vh - 200px), 920px);
+		--phone-qr-img-width: min(68%, 168px);
+		--phone-feed-max-height: min(32vh, 14rem);
+	}
+
+	:global(.average-phone-qr .phone-qr-frame__qr) {
+		padding: 0.35rem 0 0.15rem;
 	}
 
 	.error {
@@ -690,6 +700,17 @@
 			grid-template-columns: 1fr;
 			height: auto;
 		}
+
+		.phone-panel {
+			height: auto;
+			align-items: center;
+		}
+
+		:global(.average-phone-qr) {
+			--phone-fill-max-height: min(480px, 55vh);
+			--phone-qr-img-width: min(62%, 148px);
+			--phone-feed-max-height: min(24vh, 11rem);
+		}
 	}
 
 	@media (max-width: 900px) {
@@ -711,6 +732,13 @@
 
 		.response-time {
 			grid-column: 2;
+		}
+
+		:global(.average-phone-qr) {
+			--phone-screen-top: 9.5%;
+			--phone-fill-max-height: min(420px, 52vh);
+			--phone-qr-img-width: min(58%, 132px);
+			--phone-feed-max-height: min(20vh, 9.5rem);
 		}
 	}
 </style>

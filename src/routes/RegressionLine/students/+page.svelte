@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import { push } from 'firebase/database';
 	import { db, ensureFirebaseAuth, formatFirebaseAuthError, missingEnvKeys, sessionEventsRef } from '$lib/firebase';
+	import StudentHelpFab from '$lib/components/StudentHelpFab.svelte';
 	import { getRandomDiceAnimalName } from '$lib/diceAnimals';
 
 	/** @type {import('firebase/database').Database | null} */
@@ -117,8 +118,15 @@
 </script>
 
 <section class="students-lab">
+	<StudentHelpFab title="회귀직선 실험 안내">
+		<h3>1. 무엇을 하나요?</h3>
+		<p>발사이즈(X)와 키(Y)를 입력해 산점도와 회귀직선이 어떻게 그려지는지 함께 확인합니다.</p>
+		<h3>2. 참여 방법</h3>
+		<p>이름과 좌표를 입력한 뒤 제출하면 선생님 화면 산점도에 내 점이 추가됩니다.</p>
+	</StudentHelpFab>
+
 	<div class="hero">
-		<h1>REGRESSION LINE</h1>
+		<h1>발사이즈와 키를 입력하세요</h1>
 		<p>발사이즈(X), 키(Y)를 전송하면 선생님 화면의 산점도와 회귀직선이 즉시 갱신됩니다.</p>
 	</div>
 

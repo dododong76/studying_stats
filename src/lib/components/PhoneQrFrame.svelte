@@ -23,7 +23,7 @@
 		feed,
 		// `static/핸드폰.png`를 쓰려면 파일을 추가한 뒤 frameSrc만 바꾸면 됩니다.
 		frameSrc = '/핸드폰 디자인.png',
-		linkLabel = '학생 참여 열기',
+		linkLabel = 'QR 없이 접속해보기',
 		qrPixelSize = 200,
 		emptySummaryText = '학생이 전송하면 여기에 한 줄 요약이 표시됩니다.',
 		class: className = '',

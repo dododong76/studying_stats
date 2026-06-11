@@ -2,6 +2,7 @@
     import { page } from '$app/state';
     import { push } from 'firebase/database';
     import { db, ensureFirebaseAuth, formatFirebaseAuthError, missingEnvKeys, sessionEventsRef } from '$lib/firebase';
+    import StudentHelpFab from '$lib/components/StudentHelpFab.svelte';
     import { getRandomDiceAnimalName } from '$lib/diceAnimals';
 
     /** @type {import('firebase/database').Database | null} */
@@ -220,6 +221,13 @@
 </script>
 
 <section class="students-lab">
+    <StudentHelpFab title="몬티홀 문제 안내">
+        <h3>1. 무엇을 하나요?</h3>
+        <p>세 문 중 하나를 고르고, 사회자가 염소가 있는 문을 연 뒤 선택을 유지할지 바꿀지 결정합니다.</p>
+        <h3>2. 참여 방법</h3>
+        <p>문을 고른 뒤 안내에 따라 「선택 유지」 또는 「선택 변경」을 누르면 결과가 선생님 화면에 전송됩니다.</p>
+    </StudentHelpFab>
+
     <div class="hero">
         <h1>몬티홀 문제</h1>
         <p>문 뒤에 새 자동차가 있습니다. 제대로 된 문을 선택하면 자동차를 가질 수 있습니다. 문 하나를 선택하세요.</p>

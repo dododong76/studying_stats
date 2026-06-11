@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import { push } from 'firebase/database';
 	import { db, ensureFirebaseAuth, formatFirebaseAuthError, missingEnvKeys, sessionEventsRef } from '$lib/firebase';
+	import StudentHelpFab from '$lib/components/StudentHelpFab.svelte';
 	import { getRandomDiceAnimalName } from '$lib/diceAnimals';
 
 	/** @type {import('firebase/database').Database | null} */
@@ -78,8 +79,15 @@
 </script>
 
 <section class="students-lab">
+	<StudentHelpFab title="생일 조사 안내">
+		<h3>1. 무엇을 하나요?</h3>
+		<p>연도 없이 월/일만 제출해, 반 친구들과 생일이 겹치는 날이 있는지 확인하는 실험에 참여합니다.</p>
+		<h3>2. 참여 방법</h3>
+		<p>이름과 생일을 선택한 뒤 「생일 제출하기」를 누르면 선생님 화면 캘린더에 표시됩니다.</p>
+	</StudentHelpFab>
+
 	<div class="hero">
-		<h1>Birthday Check</h1>
+		<h1>생일을 입력하세요</h1>
 		<p>연도 없이 월/일만 선택해서 생일을 제출해 주세요.</p>
 	</div>
 

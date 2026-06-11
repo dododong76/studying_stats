@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import { push } from 'firebase/database';
 	import { db, ensureFirebaseAuth, formatFirebaseAuthError, missingEnvKeys, sessionEventsRef } from '$lib/firebase';
+	import StudentHelpFab from '$lib/components/StudentHelpFab.svelte';
 	import { getRandomDiceAnimalName } from '$lib/diceAnimals';
 
 	const faces = Array.from({ length: 6 }, (_, i) => i + 1);
@@ -101,6 +102,13 @@
 </script>
 
 <section class="students-lab">
+	<StudentHelpFab title="주사위 10개 합 안내">
+		<h3>1. 무엇을 하나요?</h3>
+		<p>주사위 10개를 한 번에 굴려 합(10~60)의 분포가 어떻게 모이는지 확인하는 실험에 참여합니다.</p>
+		<h3>2. 참여 방법</h3>
+		<p>이름을 입력한 뒤 굴리기 버튼을 누르면 10개 주사위의 합이 선생님 화면 그래프에 전송됩니다.</p>
+	</StudentHelpFab>
+
 	<div class="hero">
 		<h1>주사위 10개의 합 구하기</h1>
 		<p>주사위 10개를 한 번에 굴려 합을 선생님 화면으로 전송합니다.</p>

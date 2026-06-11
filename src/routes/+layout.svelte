@@ -1,8 +1,11 @@
 <script>
     import favicon from '$lib/assets/favicon.svg';
+    import '$lib/components/student-help.css';
     import { page } from '$app/state';
 
     let { children } = $props();
+
+    let hideHomeFab = $derived(/\/students\/?$/.test(page.url.pathname));
 
     const navItems = [
         {
@@ -82,13 +85,15 @@
     {/if}
 </main>
 
-<a class="home-fab" href="/" aria-label="Home">
-    <svg class="home-fab__icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path
-            d="M3 10.75L12 3l9 7.75v9.25a1 1 0 0 1-1 1h-5.5v-6.25a1 1 0 0 0-1-1h-3a1 1 0 0 0-1 1V21H4a1 1 0 0 1-1-1z"
-        />
-    </svg>
-</a>
+{#if !hideHomeFab}
+	<a class="home-fab" href="/" aria-label="Home">
+		<svg class="home-fab__icon" viewBox="0 0 24 24" aria-hidden="true">
+			<path
+				d="M3 10.75L12 3l9 7.75v9.25a1 1 0 0 1-1 1h-5.5v-6.25a1 1 0 0 0-1-1h-3a1 1 0 0 0-1 1V21H4a1 1 0 0 1-1-1z"
+			/>
+		</svg>
+	</a>
+{/if}
 
 <style>
     :global(body) {

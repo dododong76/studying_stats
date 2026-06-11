@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import { push } from 'firebase/database';
 	import { db, ensureFirebaseAuth, formatFirebaseAuthError, missingEnvKeys, sessionEventsRef } from '$lib/firebase';
+	import StudentHelpFab from '$lib/components/StudentHelpFab.svelte';
 	import { getRandomDiceAnimalName } from '$lib/diceAnimals';
 
 	const faces = Array.from({ length: 6 }, (_, i) => i + 1);
@@ -126,8 +127,15 @@
 </script>
 
 <section class="students-lab">
+	<StudentHelpFab title="주사위 던지기 안내">
+		<h3>1. 무엇을 하나요?</h3>
+		<p>주사위 1~3개를 굴려 각 눈(1~6)이 나오는 상대도수 실험에 참여합니다.</p>
+		<h3>2. 참여 방법</h3>
+		<p>이름을 입력하고 굴릴 개수를 고른 뒤 굴리기 버튼을 누르면 결과가 선생님 화면 막대그래프에 쌓입니다.</p>
+	</StudentHelpFab>
+
 	<div class="hero">
-		<h1>DICE ROLLER</h1>
+		<h1>주사위 던지기</h1>
 		<p>주사위를 굴리면 결과가 선생님 화면으로 실시간 전송됩니다.</p>
 	</div>
 

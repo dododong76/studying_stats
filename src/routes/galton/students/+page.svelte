@@ -3,6 +3,7 @@
 	import { onDestroy } from 'svelte';
 	import { push } from 'firebase/database';
 	import { db, ensureFirebaseAuth, formatFirebaseAuthError, missingEnvKeys, sessionEventsRef } from '$lib/firebase';
+	import StudentHelpFab from '$lib/components/StudentHelpFab.svelte';
 	import { getRandomDiceAnimalName } from '$lib/diceAnimals';
 
 	/** @type {import('firebase/database').Database | null} */
@@ -394,6 +395,13 @@
 </script>
 
 <div class="students-page-scroll">
+	<StudentHelpFab title="Galton Board 안내">
+		<h3>1. 무엇을 하나요?</h3>
+		<p>구슬이 핀을 지나며 좌·우로 분기해 아래 칸에 쌓이는 이항분포(정규분포에 가까운 모양)를 관찰합니다.</p>
+		<h3>2. 참여 방법</h3>
+		<p>구슬 개수와 핀 줄 수를 조절한 뒤 시뮬레이션을 실행하고 「결과 제출」을 누르면 선생님 화면에 반영됩니다.</p>
+	</StudentHelpFab>
+
 	<section class="students-lab">
 		<div class="hero">
 			<h1>Galton Board Lab</h1>

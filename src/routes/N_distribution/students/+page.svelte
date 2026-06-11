@@ -2,6 +2,7 @@
     import { page } from '$app/state';
     import { push } from 'firebase/database';
     import { db, ensureFirebaseAuth, formatFirebaseAuthError, missingEnvKeys, sessionEventsRef } from '$lib/firebase';
+    import StudentHelpFab from '$lib/components/StudentHelpFab.svelte';
     import { getRandomDiceAnimalName } from '$lib/diceAnimals';
 
     /** @type {import('firebase/database').Database | null} */
@@ -105,9 +106,16 @@
 </script>
 
 <div class="students-page-scroll">
+    <StudentHelpFab title="정규분포 만들기 안내">
+        <h3>1. 무엇을 하나요?</h3>
+        <p>평균(m)과 분산(σ²)을 바꿔 정규분포 N(m, σ²) 그래프 모양이 어떻게 변하는지 확인합니다.</p>
+        <h3>2. 참여 방법</h3>
+        <p>값을 입력한 뒤 제출하면 내 그래프가 선생님 화면에 카드로 표시됩니다.</p>
+    </StudentHelpFab>
+
     <section class="students-lab">
         <div class="hero">
-            <h1>Normal Curve Lab</h1>
+            <h1>정규분포 만들어보기</h1>
             <p>
                 평균(m)과 분산(σ²)을 바꿔 보세요. 그래프가 실시간으로 변화합니다. (X축 범위: 0~100)
             </p>
