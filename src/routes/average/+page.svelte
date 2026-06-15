@@ -652,28 +652,30 @@
 	}
 
 	.phone-panel {
-		display: flex;
-		flex-direction: column;
-		align-items: stretch;
-		min-width: 0;
-		min-height: 0;
-		height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    align-self: start;
+    min-height: 0;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+	:global(.average-phone-qr.phone-qr-frame--fill) {
+		flex: 0 1 auto;
+		height: auto;
+		align-self: center;
 	}
 
-	:global(.average-phone-qr) {
-		flex: 1 1 auto;
-		--phone-screen-top: 8.5%;
-		--phone-screen-left: 6.5%;
-		--phone-screen-right: 6.5%;
-		--phone-screen-bottom: 9.5%;
-		--phone-fill-max-height: min(calc(100vh - 200px), 920px);
-		--phone-qr-img-width: min(68%, 168px);
-		--phone-feed-max-height: min(32vh, 14rem);
-	}
-
-	:global(.average-phone-qr .phone-qr-frame__qr) {
-		padding: 0.35rem 0 0.15rem;
-	}
+/* 대신 이 코드를 넣어주세요 */
+:global(.average-phone-qr) {
+    --phone-screen-top: 7.5%;
+    --phone-screen-left: 6.5%;
+    --phone-screen-right: 6.5%;
+    --phone-screen-bottom: 9.5%;
+    --phone-fill-max-height: min(calc(100vh - 200px), 920px);
+}
 
 	.error {
 		margin-top: 10px;
@@ -706,10 +708,8 @@
 			align-items: center;
 		}
 
-		:global(.average-phone-qr) {
-			--phone-fill-max-height: min(480px, 55vh);
-			--phone-qr-img-width: min(62%, 148px);
-			--phone-feed-max-height: min(24vh, 11rem);
+		:global(.average-phone-qr .phone-qr-frame__shell) {
+			width: min(300px, 100%);
 		}
 	}
 
@@ -736,9 +736,7 @@
 
 		:global(.average-phone-qr) {
 			--phone-screen-top: 9.5%;
-			--phone-fill-max-height: min(420px, 52vh);
-			--phone-qr-img-width: min(58%, 132px);
-			--phone-feed-max-height: min(20vh, 9.5rem);
+			--phone-qr-img-width: 64%;
 		}
 	}
 </style>

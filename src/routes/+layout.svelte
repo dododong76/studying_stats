@@ -9,16 +9,16 @@
 
     const navItems = [
         {
-            href: '/dice',
-            label: '주사위 던지기',
-            description: '통계적 확률과 수학적 확률의 관계를 알아봅니다.',
-            image: '/주사위.png'
+            href: '/average',
+            label: '생활 평균',
+            description: '학생들의 생활 데이터를 실시간으로 모아 평균, 분산, 표준편차를 확인합니다.',
+            image: '/생활평균.png'
         },
         {
-            href: '/birthday',
-            label: '우리 반에 나와 생일이 같은 학생이 있을 확률은?',
-            description: '학생이 체크한 생일 날짜를 달력에 표시하여 확인해봅시다다.',
-            image: '/생일케익.png'
+            href: '/MontyHall',
+            label: '몬티홀 문제',
+            description: '처음 선택을 유지할지 바꿀지 직접 실험하며 확률 차이를 확인합니다.',
+            image: '/몬티홀.png'
         },
         {
             href: '/RegressionLine',
@@ -27,35 +27,36 @@
             image: '/회귀직선.jpg'
         },
         {
+            href: '/birthday',
+            label: '우리 반에 나와 생일이 같은 학생이 있을 확률은?',
+            description: '학생이 체크한 생일 날짜를 달력에 표시하여 확인해봅시다.',
+            image: '/생일케익.png'
+        },
+        {
+            href: '/galton',
+            label: '갈톤 보드',
+            description: '좌/우 분기가 누적되는 이항분포를 시뮬레이션하고 결과를 전송합니다.',
+            image: '/갈톤보드.png'
+        },
+        {
             href: '/N_distribution',
             label: '정규분포 그려보기',
             description: '정규분포 곡선을 그리고 분포를 관찰합니다.',
             image: '/정규분포.jpg'
+        },
+        {
+            href: '/dice',
+            label: '주사위 던지기',
+            description: '통계적 확률과 수학적 확률의 관계를 알아봅니다.',
+            image: '/주사위.png'
         },
 		{
             href: '/dice10',
             label: '주사위 10개의 합',
             description: '주사위 10개의 합을 충분히 많이 굴려 합의 분포를 관찰합니다.',
             image: '/주사위10개.jpg'
-        },
-		{
-            href: '/MontyHall',
-            label: '몬티홀 문제',
-            description: '처음 선택을 유지할지 바꿀지 직접 실험하며 확률 차이를 확인합니다.',
-            image: '/몬티홀.png'
-        },
-		{
-            href: '/galton',
-            label: '갈톤 보드',
-            description: '좌/우 분기가 누적되는 이항분포를 시뮬레이션하고 결과를 전송합니다.',
-            image: '/갈톤보드.png'
-        },
-		{
-            href: '/average',
-            label: '생활 평균',
-            description: '학생들의 생활 데이터를 실시간으로 모아 평균, 분산, 표준편차를 확인합니다.',
-            image: '/생활평균.png'
         }
+
     ];
 </script>
 

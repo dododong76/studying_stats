@@ -165,8 +165,29 @@
 	.galton-card__meta { margin-top: 8px; display: flex; flex-direction: column; gap: 2px; font-size: 0.82rem; }
 	.name { font-weight: 700; color: #0f172a; }
 	.desc { color: #475569; }
-	.right-panel { display: flex; flex-direction: column; align-items: stretch; min-width: 0; }
-	:global(.galton-phone-qr) { --phone-fill-max-height: min(calc(100vh - 200px), 920px); }
+	.right-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    align-self: start; /* 👈 핸드폰 프레임이 세로로 찌그러지거나 늘어나는 것을 방지 */
+    min-height: 0;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+:global(.galton-phone-qr) {
+    /* 생일 캘린더에서 완벽하게 작동하던 내부 여백 변수들을 그대로 이식합니다 */
+    --phone-screen-top: 7.5%;
+    --phone-screen-left: 6.5%;
+    --phone-screen-right: 6.5%;
+    --phone-screen-bottom: 9.5%;
+    --phone-fill-max-height: min(calc(100vh - 200px), 920px);
+}
+
+
+
+
 	.error { margin-top: 10px; border-radius: 12px; padding: 10px 12px; border: 1px solid rgba(185, 28, 28, 0.25); background: rgba(185, 28, 28, 0.08); color: #b91c1c; font-weight: 700; }
 	@media (max-width: 920px) { .teacher-lab { grid-template-columns: 1fr; } }
 </style>

@@ -330,14 +330,20 @@
 	}
 
 	.day-cell--overlap {
-		background: #fee2e2;
-		box-shadow: inset 0 0 0 2px #dc2626;
-	}
+    /* 멀리서도 확 띄는 진한 다홍빛 네온 컬러 배경 */
+    background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+    border-radius: 10px;
+    transform: scale(1.3); /* 카드 자체를 살짝 부풀림 */
+    z-index: 2;
+}
 
-	.day-cell--overlap .day-num {
-		color: #991b1b;
-		font-weight: 900;
-	}
+.day-cell--overlap .day-num {
+    color: #ffffff !important; /* 어두운 배경이므로 글자를 흰색으로 반전 */
+    font-size: 0.95rem !important; /* 뒤에서도 보이게 글자 크기를 대폭 확대 */
+    font-weight: 950;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
 
 	.day-mark--multi {
 		width: 26px;
@@ -353,8 +359,8 @@
 
 	.overlap-badge {
 		position: absolute;
-		top: 1px;
-		right: 1px;
+		top: 23px;
+		right: -15px;
 		z-index: 2;
 		min-width: 14px;
 		height: 14px;
@@ -363,7 +369,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: #7f1d1d;
+		background: #1d2c7f;
 		color: #ffffff;
 		font-size: 0.58rem;
 		font-weight: 900;
