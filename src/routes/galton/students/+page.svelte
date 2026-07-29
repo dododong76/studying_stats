@@ -15,6 +15,7 @@
     let rowsInput = $state('12');
     let isSimulating = $state(false);
     let isSending = $state(false);
+    let hasSubmitted = $state(false);
     let errorMessage = $state('');
     /** @type {SVGSVGElement | null} */
     let boardSvgEl = $state(null);
@@ -108,6 +109,7 @@
         droppedCount = 0;
         settledCount = 0;
         isSimulating = false;
+        hasSubmitted = false;
     }
 
     function spawnBall() {
@@ -332,7 +334,7 @@
     }
 
     async function submit() {
-        if (isSending || isSimulating) return;
+        if (isSending || isSimulating || hasSubmitted) return;
         errorMessage = '';
         if (!firebaseDb) {
             const suffix = missingEnvKeys?.length ? ` (누락: ${missingEnvKeys.join(', ')})` : '';
@@ -382,6 +384,8 @@
                 imageDataUrl,
                 createdAt: Date.now()
             });
+
+            hasSubmitted = true;
         } catch (err) {
             errorMessage = `전송 실패: ${formatFirebaseAuthError(err)}`;
         } finally {
@@ -462,8 +466,8 @@
                 <button class="run-btn" type="button" onclick={startDrop} disabled={isSimulating}>
                     {isSimulating ? '실행 중...' : '시뮬레이션 시작'}
                 </button>
-                <button class="submit-btn" type="button" onclick={submit} disabled={isSimulating || isSending}>
-                    {isSending ? '전송 중...' : '결과 제출'}
+                <button class="submit-btn" type="button" onclick={submit} disabled={isSimulating || isSending || hasSubmitted}>
+                    {isSending ? '전송 중...' : hasSubmitted ? '제출 완료' : '결과 제출'}
                 </button>
             </div>
             {#if errorMessage}
