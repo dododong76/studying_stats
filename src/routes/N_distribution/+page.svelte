@@ -1,366 +1,539 @@
 <script>
-	import { onDestroy, onMount } from 'svelte';
-	import { page } from '$app/state';
-	import { onValue } from 'firebase/database';
-	import { PhoneQrFrame, NormalCurveSvg } from '$lib';
-	import { db, ensureFirebaseAuth, formatFirebaseAuthError, missingEnvKeys, sessionEventsRef } from '$lib/firebase';
+    import { onDestroy, onMount } from 'svelte';
+    import { page } from '$app/state';
+    import { onValue } from 'firebase/database';
+    import { PhoneQrFrame, NormalCurveSvg } from '$lib';
+    import { db, ensureFirebaseAuth, formatFirebaseAuthError, missingEnvKeys, sessionEventsRef } from '$lib/firebase';
 
-	/**
-	 * @typedef {{
-	 *   id: string,
-	 *   playerName: string,
-	 *   mean: number,
-	 *   variance: number,
-	 *   n?: number,
-	 *   p?: number,
-	 *   createdAt: number
-	 * }} NormalEvent
-	 */
+    /**
+     * @typedef {{
+     *   id: string,
+     *   playerName: string,
+     *   mean: number,
+     *   variance: number,
+     *   n?: number,
+     *   p?: number,
+     *   createdAt: number
+     * }} NormalEvent
+     */
 
-	/** @type {import('firebase/database').Database | null} */
-	const firebaseDb = db;
+    /** @type {import('firebase/database').Database | null} */
+    const firebaseDb = db;
 
-	let sessionId = $state(page.url.searchParams.get('session') ?? '');
-	let studentLink = $state('');
-	let studentUrl = $state('');
-	/** @type {NormalEvent[]} */
-	let events = $state([]);
-	let errorMessage = $state('');
+    let sessionId = $state(page.url.searchParams.get('session') ?? '');
+    let studentLink = $state('');
+    let studentUrl = $state('');
+    /** @type {NormalEvent[]} */
+    let events = $state([]);
+    let errorMessage = $state('');
 
-	/** @type {null | (() => void)} */
-	let unsubscribe = null;
+    /** @type {null | (() => void)} */
+    let unsubscribe = null;
 
-	function generateSessionId() {
-		if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
-		return `sess_${Math.random().toString(36).slice(2)}_${Date.now()}`;
-	}
+    // 통합 평균 그래프 모달 상태
+    let showAverageModal = $state(false);
 
-	/**
-	 * @param {number} n
-	 */
-	function fmtNum(n) {
-		if (!Number.isFinite(n)) return '—';
-		const abs = Math.abs(n);
-		const digits = abs >= 100 || abs < 0.01 ? 4 : abs >= 10 ? 3 : 2;
-		return Number(n.toFixed(digits)).toString();
-	}
+    function generateSessionId() {
+        if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+        return `sess_${Math.random().toString(36).slice(2)}_${Date.now()}`;
+    }
 
-	/**
-	 * @param {unknown} v
-	 */
-	function toFiniteNumber(v) {
-		const n = typeof v === 'number' ? v : Number(v);
-		return Number.isFinite(n) ? n : NaN;
-	}
+    /**
+     * @param {number} n
+     */
+    function fmtNum(n) {
+        if (!Number.isFinite(n)) return '—';
+        const abs = Math.abs(n);
+        const digits = abs >= 100 || abs < 0.01 ? 4 : abs >= 10 ? 3 : 2;
+        return Number(n.toFixed(digits)).toString();
+    }
 
-	/**
-	 * @param {NormalEvent} ev
-	 */
-	function formatFormula(ev) {
-		if (ev.n !== undefined && ev.p !== undefined) {
-			return `B(${fmtNum(ev.n)}, ${fmtNum(ev.p)})`;
-		}
-		return `N(${fmtNum(ev.mean)}, ${fmtNum(ev.variance)})`;
-	}
+    /**
+     * @param {unknown} v
+     */
+    function toFiniteNumber(v) {
+        const n = typeof v === 'number' ? v : Number(v);
+        return Number.isFinite(n) ? n : NaN;
+    }
 
-	/**
-	 * @param {Record<string, any> | null} raw
-	 */
-	function hydrateFromEvents(raw) {
-		/** @type {NormalEvent[]} */
-		const next = [];
+    /**
+     * @param {NormalEvent} ev
+     */
+    function formatFormula(ev) {
+        if (ev.n !== undefined && ev.p !== undefined) {
+            return `B(${fmtNum(ev.n)}, ${fmtNum(ev.p)})`;
+        }
+        return `N(${fmtNum(ev.mean)}, ${fmtNum(ev.variance)})`;
+    }
 
-		if (raw) {
-			for (const [firebaseKey, value] of Object.entries(raw)) {
-				if (!value || typeof value !== 'object') continue;
-				const mean = toFiniteNumber(value.mean);
-				const variance = toFiniteNumber(value.variance);
-				const nRaw = value.n;
-				const pRaw = value.p;
-				const n = nRaw !== undefined && nRaw !== null ? Number(nRaw) : NaN;
-				const p = pRaw !== undefined && pRaw !== null ? Number(pRaw) : NaN;
-				const createdAt = Number(value.createdAt ?? 0);
-				const playerName = String(value.playerName ?? '학생');
+    /**
+     * @param {Record<string, any> | null} raw
+     */
+    function hydrateFromEvents(raw) {
+        /** @type {NormalEvent[]} */
+        const next = [];
 
-				next.push({
-					id: firebaseKey,
-					playerName,
-					mean: Number.isFinite(mean) ? mean : 0,
-					variance: Number.isFinite(variance) ? variance : 1,
-					n: Number.isFinite(n) ? n : undefined,
-					p: Number.isFinite(p) ? p : undefined,
-					createdAt: Number.isFinite(createdAt) ? createdAt : 0
-				});
-			}
-		}
+        if (raw) {
+            for (const [firebaseKey, value] of Object.entries(raw)) {
+                if (!value || typeof value !== 'object') continue;
+                const mean = toFiniteNumber(value.mean);
+                const variance = toFiniteNumber(value.variance);
+                const nRaw = value.n;
+                const pRaw = value.p;
+                const n = nRaw !== undefined && nRaw !== null ? Number(nRaw) : NaN;
+                const p = pRaw !== undefined && pRaw !== null ? Number(pRaw) : NaN;
+                const createdAt = Number(value.createdAt ?? 0);
+                const playerName = String(value.playerName ?? '학생');
 
-		// 최신 전송이 맨 위로 오도록 내림차순 정렬
-		next.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-		events = next.slice(0, 300);
-	}
+                next.push({
+                    id: firebaseKey,
+                    playerName,
+                    mean: Number.isFinite(mean) ? mean : 0,
+                    variance: Number.isFinite(variance) ? variance : 1,
+                    n: Number.isFinite(n) ? n : undefined,
+                    p: Number.isFinite(p) ? p : undefined,
+                    createdAt: Number.isFinite(createdAt) ? createdAt : 0
+                });
+            }
+        }
 
-	onMount(() => {
-		events = [];
-		errorMessage = '';
+        // 최신 전송이 맨 위로 오도록 내림차순 정렬
+        next.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        events = next.slice(0, 300);
+    }
 
-		if (!sessionId) {
-			sessionId = generateSessionId();
-			const url = new URL(window.location.href);
-			url.searchParams.set('session', sessionId);
-			window.history.replaceState({}, '', url.toString());
-		}
+    // 제출된 전체 정규분포 데이터의 평균 Mean 및 평균 Variance 산출
+    let averageParams = $derived.by(() => {
+        if (events.length === 0) return { mean: 0, variance: 1, totalCount: 0 };
 
-		studentLink = `/N_distribution/students?session=${encodeURIComponent(sessionId)}`;
-		studentUrl = new URL(studentLink, window.location.origin).toString();
+        const totalMean = events.reduce((acc, ev) => acc + ev.mean, 0);
+        const totalVar = events.reduce((acc, ev) => acc + ev.variance, 0);
 
-		if (!firebaseDb) {
-			const suffix = missingEnvKeys?.length ? ` (누락: ${missingEnvKeys.join(', ')})` : '';
-			errorMessage = `Firebase 설정(VITE_FIREBASE_*)이 필요합니다.${suffix}`;
-			return;
-		}
+        return {
+            mean: Number((totalMean / events.length).toFixed(2)),
+            variance: Number(Math.max(totalVar / events.length, 0.01).toFixed(2)),
+            totalCount: events.length
+        };
+    });
 
-		void (async () => {
-			try {
-				await ensureFirebaseAuth();
-			} catch (error) {
-				errorMessage = `인증 초기화 실패: ${formatFirebaseAuthError(error)}`;
-				return;
-			}
+    onMount(() => {
+        events = [];
+        errorMessage = '';
 
-			const eventsRef = sessionEventsRef(firebaseDb, sessionId);
-			unsubscribe = onValue(
-				eventsRef,
-				(snapshot) => {
-					errorMessage = '';
-					hydrateFromEvents(snapshot.val());
-				},
-				(err) => {
-					const message = err instanceof Error ? err.message : String(err);
-					errorMessage = `실시간 구독 실패: ${message}`;
-				}
-			);
-		})();
-	});
+        if (!sessionId) {
+            sessionId = generateSessionId();
+            const url = new URL(window.location.href);
+            url.searchParams.set('session', sessionId);
+            window.history.replaceState({}, '', url.toString());
+        }
 
-	onDestroy(() => {
-		unsubscribe?.();
-	});
+        studentLink = `/N_distribution/students?session=${encodeURIComponent(sessionId)}`;
+        studentUrl = new URL(studentLink, window.location.origin).toString();
+
+        if (!firebaseDb) {
+            const suffix = missingEnvKeys?.length ? ` (누락: ${missingEnvKeys.join(', ')})` : '';
+            errorMessage = `Firebase 설정(VITE_FIREBASE_*)이 필요합니다.${suffix}`;
+            return;
+        }
+
+        void (async () => {
+            try {
+                await ensureFirebaseAuth();
+            } catch (error) {
+                errorMessage = `인증 초기화 실패: ${formatFirebaseAuthError(error)}`;
+                return;
+            }
+
+            const eventsRef = sessionEventsRef(firebaseDb, sessionId);
+            unsubscribe = onValue(
+                eventsRef,
+                (snapshot) => {
+                    errorMessage = '';
+                    hydrateFromEvents(snapshot.val());
+                },
+                (err) => {
+                    const message = err instanceof Error ? err.message : String(err);
+                    errorMessage = `실시간 구독 실패: ${message}`;
+                }
+            );
+        })();
+    });
+
+    onDestroy(() => {
+        unsubscribe?.();
+    });
 </script>
 
 <section class="teacher-lab">
-	<div class="left-panel">
-		<div class="panel-header">
-			<h1>정규분포 그려보기</h1>
-			<p>고등학교 확률과 통계: 정규분포 N(μ, σ²)의 모양 확인</p>
-		</div>
+    <div class="left-panel">
+        <div class="panel-header">
+            <div class="header-title-row">
+                <h1>정규분포 그려보기</h1>
+                <button
+                    class="avg-btn"
+                    type="button"
+                    onclick={() => (showAverageModal = true)}
+                    disabled={events.length === 0}
+                >
+                    통합 평균 그래프 보기
+                </button>
+            </div>
+            <p>고등학교 확률과 통계: 정규분포 N(μ, σ²)의 모양 확인</p>
+        </div>
 
-		<div class="cards-wrap">
-			{#if events.length === 0}
-				<div class="empty-cards">아직 학생이 전송한 그래프가 없습니다.</div>
-			{:else}
-				<div class="cards-grid">
-					{#each events as ev (ev.id)}
-						<article class="ndist-card">
-							<div class="ndist-card__chart">
-								{#key `${ev.id}-${ev.mean}-${ev.variance}`}
-									<NormalCurveSvg mean={ev.mean} variance={ev.variance} width={260} height={120} />
-								{/key}
-							</div>
-							<div class="ndist-card__meta">
-								<span class="ndist-card__name">{ev.playerName}</span>
-								<span class="ndist-card__formula">{formatFormula(ev)}</span>
-							</div>
-						</article>
-					{/each}
-				</div>
-			{/if}
-		</div>
-	</div>
+        <div class="cards-wrap">
+            {#if events.length === 0}
+                <div class="empty-cards">아직 학생이 전송한 그래프가 없습니다.</div>
+            {:else}
+                <div class="cards-grid">
+                    {#each events as ev (ev.id)}
+                        <article class="ndist-card">
+                            <div class="ndist-card__chart">
+                                {#key `${ev.id}-${ev.mean}-${ev.variance}`}
+                                    <NormalCurveSvg mean={ev.mean} variance={ev.variance} width={260} height={120} />
+                                {/key}
+                            </div>
+                            <div class="ndist-card__meta">
+                                <span class="ndist-card__name">{ev.playerName}</span>
+                                <span class="ndist-card__formula">{formatFormula(ev)}</span>
+                            </div>
+                        </article>
+                    {/each}
+                </div>
+            {/if}
+        </div>
+    </div>
 
-	<div class="right-panel">
-		<PhoneQrFrame
-			fill
-			class="ndist-phone-qr"
-			participateUrl={studentUrl || studentLink}
-			emptySummaryText="아직 전송된 내역이 없습니다."
-			qrPixelSize={280}
-		>
-			{#snippet feed()}
-				{#if events.length === 0}
-					<p class="ndist-feed-empty">아직 전송된 그래프가 없습니다.</p>
-				{:else}
-					<ul class="ndist-phone-list">
-						{#each events as ev (ev.id)}
-							<li class="ndist-phone-item">
-								<p class="ndist-phone-item__submit-msg">{ev.playerName}가 제출했습니다.</p>
-							</li>
-						{/each}
-					</ul>
-				{/if}
-			{/snippet}
-		</PhoneQrFrame>
+    <div class="right-panel">
+        <PhoneQrFrame
+            fill
+            class="ndist-phone-qr"
+            participateUrl={studentUrl || studentLink}
+            emptySummaryText="아직 전송된 내역이 없습니다."
+            qrPixelSize={280}
+        >
+            {#snippet feed()}
+                {#if events.length === 0}
+                    <p class="ndist-feed-empty">아직 전송된 그래프가 없습니다.</p>
+                {:else}
+                    <ul class="ndist-phone-list">
+                        {#each events as ev (ev.id)}
+                            <li class="ndist-phone-item">
+                                <p class="ndist-phone-item__submit-msg">{ev.playerName}가 제출했습니다.</p>
+                            </li>
+                        {/each}
+                    </ul>
+                {/if}
+            {/snippet}
+        </PhoneQrFrame>
 
-		{#if errorMessage}
-			<div class="error">{errorMessage}</div>
-		{/if}
-	</div>
+        {#if errorMessage}
+            <div class="error">{errorMessage}</div>
+        {/if}
+    </div>
 </section>
 
+<!-- 통합 평균 그래프 모달 팝업 -->
+{#if showAverageModal}
+    <div class="modal-backdrop" onclick={() => (showAverageModal = false)} role="presentation">
+        <div class="modal-content" onclick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+            <div class="modal-header">
+                <h2>통합 평균 정규분포 N(m, σ²)</h2>
+                <button class="close-btn" type="button" onclick={() => (showAverageModal = false)}>✕</button>
+            </div>
+
+            <div class="modal-body">
+                {#if events.length === 0}
+                    <p class="no-data">집계할 데이터가 부족합니다.</p>
+                {:else}
+                    <div class="summary-info">
+                        <span>총 제출 학생: <strong>{averageParams.totalCount}명</strong></span>
+                        <span>평균 N(<strong>{averageParams.mean}</strong>, <strong>{averageParams.variance}</strong>)</span>
+                    </div>
+
+                    <div class="chart-container">
+                        {#key `avg-${averageParams.mean}-${averageParams.variance}`}
+                            <NormalCurveSvg mean={averageParams.mean} variance={averageParams.variance} width={480} height={220} />
+                        {/key}
+                    </div>
+                {/if}
+            </div>
+        </div>
+    </div>
+{/if}
+
 <style>
-	.teacher-lab {
-		display: grid;
-		grid-template-columns: 3fr 2.25fr;
-		gap: 16px;
-		min-height: calc(100vh - 160px);
-	}
+    .teacher-lab {
+        display: grid;
+        grid-template-columns: 3fr 2.25fr;
+        gap: 16px;
+        min-height: calc(100vh - 160px);
+    }
 
-	.left-panel {
-		background-color: #ffffff;
-		border: 1px solid #dbeafe;
-		border-radius: 14px;
-		padding: 16px;
-		height: 85%;
-		box-sizing: border-box;
-		display: flex;
-		flex-direction: column;
-		min-height: 0;
-	}
+    .left-panel {
+        background-color: #ffffff;
+        border: 1px solid #dbeafe;
+        border-radius: 14px;
+        padding: 16px;
+        height: 85%;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
 
-	h1 {
-		margin: 0;
-		font-size: 1.2rem;
-	}
+    .header-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
 
-	.panel-header p {
-		margin: 8px 0 12px;
-		color: #475569;
-		font-size: 0.92rem;
-	}
+    h1 {
+        margin: 0;
+        font-size: 1.2rem;
+    }
 
-	.cards-wrap {
-		flex: 1 1 auto;
-		min-height: 0;
-		overflow: auto;
-		border-radius: 10px;
-		border: 1px solid #e2e8f0;
-		background: #f8fafc;
-		padding: 12px;
-	}
+    .avg-btn {
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 6px 14px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(249, 115, 22, 0.25);
+        transition: transform 0.1s ease, opacity 0.2s;
+    }
 
-	.empty-cards {
-		padding: 28px 16px;
-		text-align: center;
-		color: #64748b;
-		font-size: 0.95rem;
-	}
+    .avg-btn:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+    }
 
-	.cards-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-		gap: 12px;
-	}
+    .avg-btn:disabled {
+        background: #cbd5e1;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+    }
 
-	.ndist-card {
-		background: #ffffff;
-		border: 1px solid #e2e8f0;
-		border-radius: 12px;
-		padding: 10px 10px 8px;
-		box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
-	}
+    .panel-header p {
+        margin: 8px 0 12px;
+        color: #475569;
+        font-size: 0.92rem;
+    }
 
-	.ndist-card__chart {
-		border-radius: 8px;
-		background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-		padding: 4px 2px 0;
-	}
+    .cards-wrap {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: auto;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        padding: 12px;
+    }
 
-	.ndist-card__meta {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-		margin-top: 8px;
-		font-size: 0.82rem;
-		color: #334155;
-	}
+    .empty-cards {
+        padding: 28px 16px;
+        text-align: center;
+        color: #64748b;
+        font-size: 0.95rem;
+    }
 
-	.ndist-card__name {
-		font-weight: 700;
-	}
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 12px;
+    }
 
-	.ndist-card__formula {
-		font-variant-numeric: tabular-nums;
-		color: #475569;
-	}
+    .ndist-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 10px 10px 8px;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    }
 
-	.right-panel {
-		display: flex;
-		flex-direction: column;
-		align-items: stretch;
-		justify-content: flex-start;
-		align-self: start;
-		min-height: 0;
-		min-width: 0;
-		box-sizing: border-box;
-		padding: 0;
-		background: transparent;
-		border: none;
-	}
+    .ndist-card__chart {
+        border-radius: 8px;
+        background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+        padding: 4px 2px 0;
+    }
 
-	:global(.ndist-phone-qr) {
-		--phone-screen-top: 7.5%;
-		--phone-screen-left: 6.5%;
-		--phone-screen-right: 6.5%;
-		--phone-screen-bottom: 9.5%;
-		--phone-fill-max-height: min(calc(100vh - 200px), 920px);
-		--phone-feed-max-height: min(38vh, 20rem);
-	}
+    .ndist-card__meta {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        margin-top: 8px;
+        font-size: 0.82rem;
+        color: #334155;
+    }
 
-	.ndist-phone-list {
-		margin: 0;
-		padding: 0;
-		list-style: none;
-		display: flex;
-		flex-direction: column;
-		gap: 0.4rem;
-	}
+    .ndist-card__name {
+        font-weight: 700;
+    }
 
-	.ndist-phone-item {
-		border-radius: 8px;
-		border: 1px solid #e2e8f0;
-		background: #ffffff;
-		padding: 0.55rem 0.65rem;
-	}
+    .ndist-card__formula {
+        font-variant-numeric: tabular-nums;
+        color: #475569;
+    }
 
-	.ndist-phone-item__submit-msg {
-		margin: 0;
-		font-size: 0.78rem;
-		line-height: 1.4;
-		color: #0f172a;
-		font-weight: 600;
-	}
+    .right-panel {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        align-self: start;
+        min-height: 0;
+        min-width: 0;
+        box-sizing: border-box;
+        padding: 0;
+        background: transparent;
+        border: none;
+    }
 
-	.ndist-feed-empty {
-		margin: 0;
-		font-size: 0.78rem;
-		line-height: 1.45;
-		color: #64748b;
-	}
+    :global(.ndist-phone-qr) {
+        --phone-screen-top: 7.5%;
+        --phone-screen-left: 6.5%;
+        --phone-screen-right: 6.5%;
+        --phone-screen-bottom: 9.5%;
+        --phone-fill-max-height: min(calc(100vh - 200px), 920px);
+        --phone-feed-max-height: min(38vh, 20rem);
+    }
 
-	.error {
-		flex: 0 0 auto;
-		border-radius: 12px;
-		padding: 10px 12px;
-		border: 1px solid rgba(185, 28, 28, 0.25);
-		background: rgba(185, 28, 28, 0.08);
-		color: #b91c1c;
-		font-weight: 700;
-		width: 100%;
-		box-sizing: border-box;
-	}
+    .ndist-phone-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
 
-	@media (max-width: 920px) {
-		.teacher-lab {
-			grid-template-columns: 1fr;
-		}
-	}
+    .ndist-phone-item {
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        padding: 0.55rem 0.65rem;
+    }
+
+    .ndist-phone-item__submit-msg {
+        margin: 0;
+        font-size: 0.78rem;
+        line-height: 1.4;
+        color: #0f172a;
+        font-weight: 600;
+    }
+
+    .ndist-feed-empty {
+        margin: 0;
+        font-size: 0.78rem;
+        line-height: 1.45;
+        color: #64748b;
+    }
+
+    .error {
+        flex: 0 0 auto;
+        border-radius: 12px;
+        padding: 10px 12px;
+        border: 1px solid rgba(185, 28, 28, 0.25);
+        background: rgba(185, 28, 28, 0.08);
+        color: #b91c1c;
+        font-weight: 700;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* 모달 팝업 스타일 */
+    .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+        padding: 16px;
+    }
+
+    .modal-content {
+        background: #ffffff;
+        border-radius: 16px;
+        width: min(540px, 100%);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+
+    .modal-header {
+        padding: 16px 20px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .modal-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #0f172a;
+    }
+
+    .close-btn {
+        background: transparent;
+        border: none;
+        font-size: 1.2rem;
+        color: #64748b;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 6px;
+    }
+
+    .close-btn:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .summary-info {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+        font-size: 0.9rem;
+        color: #475569;
+        background: #fff7ed;
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 1px solid #ffedd5;
+    }
+
+    .chart-container {
+        width: 100%;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .no-data {
+        text-align: center;
+        color: #64748b;
+        padding: 40px 0;
+    }
+
+    @media (max-width: 920px) {
+        .teacher-lab {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
