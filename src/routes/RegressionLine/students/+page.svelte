@@ -118,12 +118,14 @@
 </script>
 
 <section class="students-lab">
+	<div class="student-help-fab-hidden">
 	<StudentHelpFab title="회귀직선 실험 안내">
 		<h3>1. 무엇을 하나요?</h3>
 		<p>발사이즈(X)와 키(Y)를 입력해 산점도와 회귀직선이 어떻게 그려지는지 함께 확인합니다.</p>
 		<h3>2. 참여 방법</h3>
 		<p>이름과 좌표를 입력한 뒤 제출하면 선생님 화면 산점도에 내 점이 추가됩니다.</p>
 	</StudentHelpFab>
+	</div>
 
 	<div class="hero">
 		<h1>발사이즈와 키를 입력하세요</h1>
@@ -184,6 +186,9 @@
 </section>
 
 <style>
+	.student-help-fab-hidden :global(.student-help-fab) {
+		display: none !important;
+	}
 	.students-lab {
 		min-height: calc(100vh - 120px);
 		padding: 28px 20px 24px;

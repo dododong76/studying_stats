@@ -106,12 +106,14 @@
 </script>
 
 <div class="students-page-scroll">
+    <div class="student-help-fab-hidden">
     <StudentHelpFab title="정규분포 만들기 안내">
         <h3>1. 무엇을 하나요?</h3>
         <p>평균(m)과 분산(σ²)을 바꿔 정규분포 N(m, σ²) 그래프 모양이 어떻게 변하는지 확인합니다.</p>
         <h3>2. 참여 방법</h3>
         <p>값을 입력한 뒤 제출하면 내 그래프가 선생님 화면에 카드로 표시됩니다.</p>
     </StudentHelpFab>
+    </div>
 
     <section class="students-lab">
         <div class="hero">
@@ -202,6 +204,9 @@
 </div>
 
 <style>
+    .student-help-fab-hidden :global(.student-help-fab) {
+        display: none !important;
+    }
     .students-page-scroll {
         width: 100%;
         max-height: 100dvh;

@@ -2,7 +2,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { onValue } from 'firebase/database';
-	import { PhoneQrFrame } from '$lib';
+	import { PhoneQrFrame, TeacherHelpFab } from '$lib';
 	import { db, ensureFirebaseAuth, formatFirebaseAuthError, missingEnvKeys, sessionEventsRef } from '$lib/firebase';
 
 	/**
@@ -172,6 +172,13 @@
 </script>
 
 <section class="teacher-lab">
+	<TeacherHelpFab title="몬티홀 문제 안내">
+		<h3>1. 무엇을 보나요?</h3>
+		<p>학생들의 선택(유지·변경)과 당첨 여부가 집계되어, 유지·변경 각각의 당첨률과 막대 비교를 실시간으로 확인합니다.</p>
+		<h3>2. 참여 방법</h3>
+		<p>오른쪽 QR 코드로 학생 화면에 들어가 몬티홀 문제를 진행하면 왼쪽 통계와 최근 활동이 갱신됩니다.</p>
+	</TeacherHelpFab>
+
 	<div class="left-panel">
 		<div class="panel-header">
 			<h1>몬티홀 문제 실험을 직접해보자.</h1>

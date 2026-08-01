@@ -127,12 +127,14 @@
 </script>
 
 <section class="students-lab">
+	<div class="student-help-fab-hidden">
 	<StudentHelpFab title="주사위 던지기 안내">
 		<h3>1. 무엇을 하나요?</h3>
 		<p>주사위 1~3개를 굴려 각 눈(1~6)이 나오는 상대도수 실험에 참여합니다.</p>
 		<h3>2. 참여 방법</h3>
 		<p>이름을 입력하고 굴릴 개수를 고른 뒤 굴리기 버튼을 누르면 결과가 선생님 화면 막대그래프에 쌓입니다.</p>
 	</StudentHelpFab>
+	</div>
 
 	<div class="hero">
 		<h1>주사위 던지기</h1>
@@ -211,6 +213,9 @@
 </section>
 
 <style>
+	.student-help-fab-hidden :global(.student-help-fab) {
+		display: none !important;
+	}
 	.students-lab {
 		min-height: calc(100vh - 120px);
 		padding: 28px 20px 24px;

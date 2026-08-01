@@ -2,7 +2,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { onValue } from 'firebase/database';
-	import { PhoneQrFrame } from '$lib';
+	import { PhoneQrFrame, TeacherHelpFab } from '$lib';
 	import { db, ensureFirebaseAuth, formatFirebaseAuthError, missingEnvKeys, sessionEventsRef } from '$lib/firebase';
 
 	const sumMin = 10;
@@ -185,6 +185,13 @@
 </script>
 
 <section class="teacher-lab">
+	<TeacherHelpFab title="주사위 10개 합 안내">
+		<h3>1. 무엇을 보나요?</h3>
+		<p>주사위 10개를 한 번에 굴린 합(10~60)의 빈도가 막대그래프로 쌓입니다. 중심극한정리·합의 분포를 함께 볼 수 있습니다.</p>
+		<h3>2. 참여 방법</h3>
+		<p>오른쪽 QR 코드로 학생 화면에 들어가 10개를 굴리면 왼쪽 그래프와 통계가 실시간으로 갱신됩니다.</p>
+	</TeacherHelpFab>
+
 	<div class="teacher-lab__chart">
 		<div class="left-panel">
 			<div class="panel-header">

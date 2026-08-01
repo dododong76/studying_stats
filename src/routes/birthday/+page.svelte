@@ -2,7 +2,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { onValue } from 'firebase/database';
-	import { PhoneQrFrame } from '$lib';
+	import { PhoneQrFrame, TeacherHelpFab } from '$lib';
 	import { db, ensureFirebaseAuth, formatFirebaseAuthError, missingEnvKeys, sessionEventsRef } from '$lib/firebase';
 
 	/**
@@ -151,6 +151,13 @@
 </script>
 
 <section class="teacher-lab">
+	<TeacherHelpFab title="생일 캘린더 안내">
+		<h3>1. 무엇을 보나요?</h3>
+		<p>학생들이 제출한 생일(월·일)이 12달 캘린더에 표시됩니다. 같은 날짜가 2명 이상이면 겹침 표시로 강조됩니다.</p>
+		<h3>2. 참여 방법</h3>
+		<p>오른쪽 QR 코드로 학생 화면에 들어가 생일을 제출하면 왼쪽 캘린더와 제출 목록이 실시간으로 갱신됩니다.</p>
+	</TeacherHelpFab>
+
 	<div class="left-panel">
 		<div class="panel-header">
 			<h1>생일 캘린더</h1>

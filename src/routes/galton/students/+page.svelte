@@ -399,12 +399,14 @@
 </script>
 
 <div class="students-page-scroll">
+    <div class="student-help-fab-hidden">
     <StudentHelpFab title="Galton Board 안내">
         <h3>1. 무엇을 하나요?</h3>
         <p>구슬이 핀을 지나며 좌·우로 분기해 아래 칸에 쌓이는 이항분포(정규분포에 가까운 모양)를 관찰합니다.</p>
         <h3>2. 참여 방법</h3>
         <p>구슬 개수와 핀 줄 수를 조절한 뒤 시뮬레이션을 실행하고 「결과 제출」을 누르면 선생님 화면에 반영됩니다.</p>
     </StudentHelpFab>
+    </div>
 
     <section class="students-lab">
         <div class="hero">
@@ -478,6 +480,9 @@
 </div>
 
 <style>
+    .student-help-fab-hidden :global(.student-help-fab) {
+        display: none !important;
+    }
     .students-page-scroll { width: 100%; max-height: 100dvh; overflow-y: auto; background: #0f172a; }
     .students-lab { max-width: 520px; margin: 0 auto; padding: 16px 12px 20px; display: flex; flex-direction: column; gap: 12px; color: #f8fafc; }
     .hero h1 { margin: 0; text-align: center; font-size: 1.65rem; font-weight: 900; background: linear-gradient(to right, #93c5fd, #dbeafe); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }

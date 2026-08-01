@@ -2,7 +2,7 @@
     import { onDestroy, onMount } from 'svelte';
     import { page } from '$app/state';
     import { onValue } from 'firebase/database';
-    import { PhoneQrFrame } from '$lib';
+    import { PhoneQrFrame, TeacherHelpFab } from '$lib';
     import { db, ensureFirebaseAuth, formatFirebaseAuthError, missingEnvKeys, sessionEventsRef } from '$lib/firebase';
 
     /**
@@ -156,6 +156,13 @@
 </script>
 
 <section class="teacher-lab">
+    <TeacherHelpFab title="갈톤 보드 안내">
+        <h3>1. 무엇을 보나요?</h3>
+        <p>학생들이 제출한 갈톤 보드 시뮬레이션(캡처·구슬 수·핀 줄 수)이 카드로 모입니다. 「통합 평균 그래프 보기」로 반 전체 평균 분포를 볼 수 있습니다.</p>
+        <h3>2. 참여 방법</h3>
+        <p>오른쪽 QR 코드로 학생 화면에 들어가 시뮬레이션 후 결과를 제출하면 왼쪽 카드 목록이 갱신됩니다.</p>
+    </TeacherHelpFab>
+
     <div class="left-panel">
         <div class="panel-header">
             <div class="header-title-row">

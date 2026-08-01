@@ -221,12 +221,14 @@
 </script>
 
 <section class="students-lab">
+    <div class="student-help-fab-hidden">
     <StudentHelpFab title="몬티홀 문제 안내">
         <h3>1. 무엇을 하나요?</h3>
         <p>세 문 중 하나를 고르고, 사회자가 염소가 있는 문을 연 뒤 선택을 유지할지 바꿀지 결정합니다.</p>
         <h3>2. 참여 방법</h3>
         <p>문을 고른 뒤 안내에 따라 「선택 유지」 또는 「선택 변경」을 누르면 결과가 선생님 화면에 전송됩니다.</p>
     </StudentHelpFab>
+    </div>
 
     <div class="hero">
         <h1>몬티홀 문제</h1>
@@ -307,6 +309,9 @@
 </section>
 
 <style>
+    .student-help-fab-hidden :global(.student-help-fab) {
+        display: none !important;
+    }
     .students-lab {
         min-height: calc(100vh - 120px);
         padding: 24px 18px 20px;

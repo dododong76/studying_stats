@@ -102,12 +102,14 @@
 </script>
 
 <div class="avg-page">
+	<div class="student-help-fab-hidden">
 	<StudentHelpFab title="생활 평균 조사 안내">
 		<h3>1. 무엇을 하나요?</h3>
 		<p>슬라이더로 등교 시간, 스마트폰 사용, 수면, 책, 필기구 개수 등 나의 생활 데이터를 입력합니다.</p>
 		<h3>2. 참여 방법</h3>
 		<p>값을 조절한 뒤 「선생님에게 보내기」를 누르면 선생님 화면의 평균·분산·표준편차가 갱신됩니다.</p>
 	</StudentHelpFab>
+	</div>
 
 	<section class="card">
 		<header class="card-header">
@@ -188,6 +190,9 @@
 	</section>
 </div>
 <style>
+	.student-help-fab-hidden :global(.student-help-fab) {
+		display: none !important;
+	}
 	.avg-page {
 		min-height: 100dvh;
 		display: flex;

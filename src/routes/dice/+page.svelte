@@ -2,7 +2,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { onValue } from 'firebase/database';
-	import { PhoneQrFrame } from '$lib';
+	import { PhoneQrFrame, TeacherHelpFab } from '$lib';
 	import { db, ensureFirebaseAuth, formatFirebaseAuthError, missingEnvKeys, sessionEventsRef } from '$lib/firebase';
 
 	const faces = Array.from({ length: 6 }, (_, i) => i + 1);
@@ -218,6 +218,13 @@
 </script>
 
 <section class="teacher-lab">
+	<TeacherHelpFab title="주사위 분포실험 안내">
+		<h3>1. 무엇을 보나요?</h3>
+		<p>학생들이 굴린 주사위 결과가 눈(1~6)별 막대그래프와 총 굴린 횟수로 실시간 집계됩니다.</p>
+		<h3>2. 참여 방법</h3>
+		<p>오른쪽 QR 코드로 학생 화면에 들어가 주사위를 굴리면 왼쪽 그래프와 최근 활동이 갱신됩니다.</p>
+	</TeacherHelpFab>
+
 	<div class="left-panel">
 		<div class="panel-header">
 			<h1>주사위 분포실험</h1>

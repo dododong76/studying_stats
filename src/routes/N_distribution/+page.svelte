@@ -2,7 +2,7 @@
     import { onDestroy, onMount } from 'svelte';
     import { page } from '$app/state';
     import { onValue } from 'firebase/database';
-    import { PhoneQrFrame, NormalCurveSvg } from '$lib';
+    import { PhoneQrFrame, NormalCurveSvg, TeacherHelpFab } from '$lib';
     import { db, ensureFirebaseAuth, formatFirebaseAuthError, missingEnvKeys, sessionEventsRef } from '$lib/firebase';
 
     /**
@@ -165,6 +165,13 @@
 </script>
 
 <section class="teacher-lab">
+    <TeacherHelpFab title="정규분포 그리기 안내">
+        <h3>1. 무엇을 보나요?</h3>
+        <p>학생마다 설정한 평균·분산의 정규분포 그래프가 카드로 표시됩니다. 「통합 평균 그래프 보기」로 반 전체 평균 N(m, σ²)을 볼 수 있습니다.</p>
+        <h3>2. 참여 방법</h3>
+        <p>오른쪽 QR 코드로 학생 화면에 들어가 m과 σ²를 제출하면 왼쪽 카드 그리드가 실시간으로 갱신됩니다.</p>
+    </TeacherHelpFab>
+
     <div class="left-panel">
         <div class="panel-header">
             <div class="header-title-row">
