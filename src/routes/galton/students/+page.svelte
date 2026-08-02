@@ -454,11 +454,11 @@
         <div class="controls">
             <div class="field">
                 <label for="ballCountInput">구슬 개수: {ballCount}개</label>
-                <input id="ballCountInput" type="range" min="30" max="500" step="10" bind:value={ballCountInput} />
+                <input id="ballCountInput" type="range" min="30" max="500" step="10" bind:value={ballCountInput} disabled={isSimulating} />
             </div>
             <div class="field">
                 <label for="rowsInput">핀 줄 수: {rows}줄</label>
-                <input id="rowsInput" type="range" min="9" max="14" step="1" bind:value={rowsInput} />
+                <input id="rowsInput" type="range" min="9" max="14" step="1" bind:value={rowsInput} disabled={isSimulating} />
             </div>
             <div class="field">
                 <label for="playerNameInput">참여 이름</label>
