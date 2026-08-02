@@ -182,11 +182,6 @@
         font-size: clamp(0.78rem, 1.6cqw, 0.92rem);
     }
 
-    .phone-qr-frame--fill .phone-qr-frame__btn {
-        font-size: clamp(0.8rem, 1.8cqw, 0.95rem);
-        padding: 1rem 0.65rem;
-    }
-
     .phone-qr-frame--fill .phone-qr-frame__screen {
         container-type: inline-size;
     }
@@ -278,42 +273,5 @@
     .phone-qr-frame__line:last-child {
         border-bottom: none;
         padding-bottom: 0;
-    }
-
-    .phone-qr-frame__btn {
-        flex: 0 0 auto;
-        display: flex;
-        width: calc(100% - 60px);
-        margin-left: auto;
-        margin-right: auto;
-        align-items: center;
-        justify-content: center;
-        margin-top: auto;
-        padding: 0.45rem 0.55rem;
-        border-radius: 999px;
-        font-size: 0.78rem;
-        font-weight: 600;
-        text-decoration: none;
-        text-align: center;
-        color: #ffffff;
-        background: linear-gradient(180deg, #4f46e5 0%, #3730a3 100%);
-        box-shadow: 0 4px 12px rgba(55, 48, 163, 0.28);
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    .phone-qr-frame__btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 14px rgba(55, 48, 163, 0.35);
-    }
-
-    .phone-qr-frame__btn:focus-visible {
-        outline: 2px solid #c7d2fe;
-        outline-offset: 2px;
-    }
-
-    .phone-qr-frame__btn[aria-disabled='true'] {
-        opacity: 0.45;
-        pointer-events: none;
-        box-shadow: none;
     }
 </style>

@@ -63,10 +63,17 @@
         events = next.slice(0, 240);
     }
 
+    /** @type {string[]} */
+    let summaryLines = $derived.by(() =>
+        events
+            .slice(0, 12)
+            .map((ev) => `${ev.playerName}님이 결과를 제출했습니다. (구슬 ${ev.ballCount}개 · 핀 ${ev.rows}줄)`)
+    );
+
     // 제출된 데이터를 바탕으로 평균 빈(bin) 분포 계산
     let averageData = $derived.by(() => {
         const validEvents = events.filter((e) => e.bins && e.bins.length > 0);
-        if (validEvents.length === 0) return { bins: [], maxVal: 0, totalBalls: 0, avgBallCount: 0 };
+        if (validEvents.length === 0) return { bins: [], maxVal: 0, totalBalls: 0, avgBallCount: 0, totalCount: 0 };
 
         // 가장 빈 수가 많은 데이터 기준으로 길이 설정
         const maxBinsLen = Math.max(...validEvents.map((e) => e.bins.length));
@@ -209,6 +216,7 @@
             fill
             class="galton-phone-qr"
             participateUrl={studentUrl || studentLink}
+            summaries={summaryLines}
             emptySummaryText="아직 전송된 내역이 없습니다."
             qrPixelSize={280}
         />
@@ -220,8 +228,14 @@
 
 <!-- 통합 평균 그래프 모달 팝업 -->
 {#if showAverageModal}
-    <div class="modal-backdrop" onclick={() => (showAverageModal = false)} role="presentation">
-        <div class="modal-content" onclick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+    <div class="modal-backdrop" role="presentation">
+        <button
+            class="modal-backdrop-btn"
+            type="button"
+            aria-label="모달 닫기"
+            onclick={() => (showAverageModal = false)}
+        ></button>
+        <div class="modal-content" role="dialog" aria-modal="true" tabindex="-1">
             <div class="modal-header">
                 <h2>통합 평균 갈톤 분포 (정규분포)</h2>
                 <button class="close-btn" type="button" onclick={() => (showAverageModal = false)}>✕</button>
@@ -347,14 +361,23 @@
         inset: 0;
         background: rgba(15, 23, 42, 0.55);
         backdrop-filter: blur(4px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: grid;
+        place-items: center;
         z-index: 999;
         padding: 16px;
     }
 
+    .modal-backdrop-btn {
+        position: absolute;
+        inset: 0;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+    }
+
     .modal-content {
+        position: relative;
+        z-index: 1;
         background: #ffffff;
         border-radius: 16px;
         width: min(560px, 100%);

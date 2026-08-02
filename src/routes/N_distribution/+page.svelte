@@ -242,8 +242,14 @@
 
 <!-- 통합 평균 그래프 모달 팝업 -->
 {#if showAverageModal}
-    <div class="modal-backdrop" onclick={() => (showAverageModal = false)} role="presentation">
-        <div class="modal-content" onclick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+    <div class="modal-backdrop" role="presentation">
+        <button
+            class="modal-backdrop-btn"
+            type="button"
+            aria-label="모달 닫기"
+            onclick={() => (showAverageModal = false)}
+        ></button>
+        <div class="modal-content" role="dialog" aria-modal="true" tabindex="-1">
             <div class="modal-header">
                 <h2>통합 평균 정규분포 N(m, σ²)</h2>
                 <button class="close-btn" type="button" onclick={() => (showAverageModal = false)}>✕</button>
@@ -459,14 +465,23 @@
         inset: 0;
         background: rgba(15, 23, 42, 0.55);
         backdrop-filter: blur(4px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: grid;
+        place-items: center;
         z-index: 999;
         padding: 16px;
     }
 
+    .modal-backdrop-btn {
+        position: absolute;
+        inset: 0;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+    }
+
     .modal-content {
+        position: relative;
+        z-index: 1;
         background: #ffffff;
         border-radius: 16px;
         width: min(540px, 100%);
